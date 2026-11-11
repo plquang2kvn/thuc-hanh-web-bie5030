@@ -1,0 +1,833 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Phát triển web kinh doanh BIE5030</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&family=Roboto+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: dải tiêu đề xanh UEL + thanh tab dính; nội dung 1 cột rộng 1080px, module chia 2 cột (danh mục mục học | nội dung) */
+:root{
+  --uel:#144e8c; --uel-2:#0f3d6e; --sky:#00aeef; --orange:#f05a23;
+  --bg:#f5f8fc; --surface:#ffffff; --surface-2:#eaf1f9; --line:#d3deeb;
+  --fg:#13263d; --muted:#53657c; --on-band:#ffffff; --band-muted:#cfe0f3;
+  --ok:#1b7f4c; --warn:#b7620b; --bad:#b4261c; --ok-bg:#e3f4ea; --bad-bg:#fbe7e5;
+  --code:#eef3f9;
+  --f-body:"Roboto",system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
+  --f-mono:"Roboto Mono",ui-monospace,Consolas,monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0b1625; --surface:#112135; --surface-2:#172b44; --line:#24405f;
+  --fg:#e5edf7; --muted:#9db0c7; --uel:#1a5ea6; --uel-2:#0d2c4f; --band-muted:#b9cde4;
+  --ok:#5fd398; --warn:#f0a85a; --bad:#ff8a7e; --ok-bg:#12351f; --bad-bg:#3a1714; --code:#0e1c2e; --orange:#ff7a45; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0b1625; --surface:#112135; --surface-2:#172b44; --line:#24405f;
+  --fg:#e5edf7; --muted:#9db0c7; --uel:#1a5ea6; --uel-2:#0d2c4f; --band-muted:#b9cde4;
+  --ok:#5fd398; --warn:#f0a85a; --bad:#ff8a7e; --ok-bg:#12351f; --bad-bg:#3a1714; --code:#0e1c2e; --orange:#ff7a45; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--f-body);font-size:16px;line-height:1.55}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--uel-2)}
+.wrap{max-width:1080px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3,h4{text-wrap:balance;line-height:1.25;margin:0}
+p{margin:0}
+a{color:var(--uel)}
+:root:not([data-theme="light"]) a{color:inherit}
+button{font:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--sky);outline-offset:2px}
+.num{font-variant-numeric:tabular-nums}
+/* band */
+.band{background:linear-gradient(120deg,var(--uel-2) 0%,var(--uel) 62%,#1d6fb8 100%);color:var(--on-band)}
+.band .wrap{padding-block:28px 22px;display:grid;grid-template-columns:1fr auto;gap:24px;align-items:end}
+.eyebrow{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--band-muted);font-weight:500}
+.band h1{font-size:clamp(28px,4.4vw,44px);font-weight:900;margin-top:8px;letter-spacing:-.01em}
+.meta{display:flex;flex-wrap:wrap;gap:6px 18px;margin-top:10px;color:var(--band-muted);font-size:14px}
+.prog{display:flex;align-items:center;gap:10px;margin-top:14px;font-size:13px;color:var(--band-muted)}
+.bar{flex:0 0 200px;height:6px;background:rgba(255,255,255,.22);border-radius:3px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--orange);width:0;transition:width .4s}
+.funnel-mark{width:150px;height:96px}
+.band-tools{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}
+.chip-btn{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.35);border-radius:999px;padding:5px 12px;font-size:13px}
+.chip-btn[aria-pressed="true"]{background:var(--orange);border-color:var(--orange)}
+/* tabs */
+.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--surface);border-bottom:1px solid var(--line)}
+.tabs .wrap{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none}
+.tabs a{flex:0 0 auto;padding:13px 12px;text-decoration:none;color:var(--muted);font-weight:500;font-size:15px;border-bottom:3px solid transparent}
+.tabs a.on{color:var(--fg);border-bottom-color:var(--orange)}
+main{padding-block:28px 64px}
+.view{display:grid;gap:28px}
+.lead{font-size:18px;color:var(--muted);max-width:68ch}
+h2.sec{font-size:26px;font-weight:700}
+h3{font-size:19px;font-weight:700}
+.grid2{display:grid;grid-template-columns:1.4fr 1fr;gap:24px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px}
+.kv{display:grid;grid-template-columns:110px 1fr;gap:8px 14px;font-size:15px}
+.kv dt{color:var(--muted)} .kv dd{margin:0}
+.step b{display:inline-block;font-size:12px;color:var(--orange);font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.step h4{margin:6px 0 4px;font-size:17px}
+.step p{color:var(--muted);font-size:15px}
+.pills{display:flex;flex-wrap:wrap;gap:8px}
+.pill{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:5px 12px;font-size:14px}
+.btn{text-decoration:none;display:inline-block;background:var(--orange);color:#fff;border:0;border-radius:8px;padding:10px 16px;font-weight:700}
+.btn.ghost{background:transparent;color:var(--fg);border:1px solid var(--line)}
+.btn.blue{background:var(--uel);color:#fff}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+/* module list */
+.mlist{display:grid;gap:10px}
+.mrow{display:grid;grid-template-columns:52px 1fr auto;gap:14px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;text-decoration:none;color:inherit}
+.mrow:hover{border-color:var(--uel)}
+.mrow .n{font-size:26px;font-weight:900;color:var(--uel);text-align:center}
+:root:not([data-theme="light"]) .mrow .n{color:var(--sky)}
+.mrow .t{font-weight:700} .mrow .s{color:var(--muted);font-size:14px}
+.ring{width:40px;height:40px}
+.tag{display:inline-block;font-size:12px;font-weight:700;border-radius:4px;padding:2px 7px;background:var(--orange);color:#fff;margin-left:6px;vertical-align:2px}
+/* module page */
+.mod{display:grid;grid-template-columns:290px 1fr;gap:24px;align-items:start}
+.side{position:sticky;top:64px;display:grid;gap:12px}
+.mnav{display:flex;flex-wrap:wrap;gap:6px}
+.mnav a{min-width:38px;text-align:center;padding:5px 8px;border:1px solid var(--line);border-radius:6px;text-decoration:none;color:var(--muted);font-family:var(--f-mono);font-size:13px;background:var(--surface)}
+.mnav a.on{background:var(--uel);color:#fff;border-color:var(--uel)}
+.items{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:6px}
+.items button{display:grid;grid-template-columns:1fr 18px;gap:8px;width:100%;text-align:left;background:none;border:0;border-radius:7px;padding:9px 10px;color:var(--fg)}
+.items button small{display:block;color:var(--muted);font-size:12.5px}
+.items button.on{background:var(--surface-2)}
+.dot{width:16px;height:16px;border-radius:50%;border:2px solid var(--line);align-self:center}
+.dot.done{background:var(--ok);border-color:var(--ok)}
+.content{min-width:0;display:grid;gap:18px}
+.kicker{font-family:var(--f-mono);font-size:13px;color:var(--orange)}
+.content h2{font-size:28px;font-weight:700}
+.prose{display:grid;gap:12px;max-width:72ch}
+.prose ul,.prose ol{margin:0;padding-left:22px;display:grid;gap:6px}
+.callout{border-left:4px solid var(--sky);background:var(--surface-2);padding:12px 14px;border-radius:0 8px 8px 0;font-size:15px}
+.callout.or{border-left-color:var(--orange)}
+.foot{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;border-top:1px solid var(--line);padding-top:16px}
+.tbl{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:15px}
+th,td{border-bottom:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+th{font-weight:700;color:var(--muted);font-size:13px;text-transform:uppercase;letter-spacing:.04em}
+td.r,th.r{text-align:right}
+/* quiz */
+.q{display:grid;gap:8px}
+.q .opts{display:grid;gap:6px}
+.q .opts button{text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:9px 12px;color:var(--fg)}
+.q .opts button.right{background:var(--ok-bg);border-color:var(--ok)}
+.q .opts button.wrong{background:var(--bad-bg);border-color:var(--bad)}
+.q .ex{font-size:14.5px;color:var(--muted)}
+/* lab */
+.lab{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:18px;display:grid;gap:16px}
+.lab-h{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:baseline}
+.lab-h .k{font-family:var(--f-mono);font-size:12.5px;color:var(--orange)}
+.ctrls{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px 18px}
+.ctrl label{display:flex;justify-content:space-between;font-size:14px;color:var(--muted);gap:8px}
+.ctrl label b{color:var(--fg);font-family:var(--f-mono);font-weight:500}
+.ctrl input[type=range]{width:100%;accent-color:var(--orange)}
+.ctrl input[type=number],.ctrl select,textarea,input[type=text]{width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:7px;background:var(--bg);color:var(--fg);font:inherit}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.stat{background:var(--surface-2);border-radius:8px;padding:10px 12px}
+.stat span{display:block;font-size:12.5px;color:var(--muted)}
+.stat b{font-family:var(--f-mono);font-size:19px;font-weight:500}
+.stat.hi{background:var(--uel);color:#fff} .stat.hi span{color:var(--band-muted)}
+.predict{border:1px dashed var(--orange);border-radius:8px;padding:10px 12px;font-size:15px}
+.sortq{display:grid;gap:8px}
+.sortq .it{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;border:1px solid var(--line);border-radius:8px;padding:8px 10px}
+.seg{display:flex;flex-wrap:wrap;gap:4px}
+.seg button{border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:6px;padding:4px 8px;font-size:13px}
+.seg button.on{background:var(--uel);border-color:var(--uel);color:#fff}
+.seg button.right{background:var(--ok);border-color:var(--ok);color:#fff}
+.seg button.wrong{background:var(--bad);border-color:var(--bad);color:#fff}
+.fbar{height:30px;border-radius:5px;background:var(--uel);color:#fff;font-size:13px;display:flex;align-items:center;padding:0 10px;white-space:nowrap;min-width:fit-content;transition:width .3s}
+.fun{display:grid;gap:6px}
+.note{font-size:13.5px;color:var(--muted)}
+.badge{display:inline-block;padding:2px 8px;border-radius:999px;font-size:12.5px;font-weight:700}
+.badge.ok{background:var(--ok-bg);color:var(--ok)} .badge.bad{background:var(--bad-bg);color:var(--bad)} .badge.warn{background:var(--surface-2);color:var(--warn)}
+.heat td.c{text-align:center;font-family:var(--f-mono)}
+.timeline{display:grid;gap:8px}
+.timeline .tl{display:grid;grid-template-columns:84px 1fr;gap:12px;align-items:start;padding:8px 0;border-bottom:1px solid var(--line)}
+.timeline .tl b{font-family:var(--f-mono);color:var(--orange)}
+.big-timer{font-family:var(--f-mono);font-size:64px;font-weight:500;text-align:center}
+.gloss{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.gloss .g b{display:block}
+.gloss .g span{color:var(--muted);font-size:14.5px}
+.present{font-size:19px}
+.present .content h2{font-size:34px}
+@media (max-width:860px){
+  .grid2,.mod{grid-template-columns:1fr}
+  .side{position:static}
+  .grid4{grid-template-columns:repeat(2,1fr)}
+  .band .wrap{grid-template-columns:1fr}
+  .funnel-mark{display:none}
+  .gloss{grid-template-columns:1fr}
+}
+@media (max-width:480px){.grid4{grid-template-columns:1fr}.bar{flex-basis:120px}.kv{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+:root{--c1:#144e8c;--c2:#f05a23;--c3:#00aeef;--c4:#2e9e6a;--c5:#8a5cc2;--c6:#c79a1b;--c7:#d6457a;--c8:#5b6b7e}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--c1:#5aa2ea;--c2:#ff7a45;--c3:#3cc8ff;--c4:#4fc58b;--c5:#b28cf0;--c6:#e3b84a;--c7:#f07aa4;--c8:#9fb0c4}}
+:root[data-theme="dark"]{--c1:#5aa2ea;--c2:#ff7a45;--c3:#3cc8ff;--c4:#4fc58b;--c5:#b28cf0;--c6:#e3b84a;--c7:#f07aa4;--c8:#9fb0c4}
+svg.chart{width:100%;height:auto;display:block;background:var(--surface);border-radius:8px}
+svg.chart .grid{stroke:var(--line);stroke-width:1}
+svg.chart .ax{stroke:var(--muted);stroke-width:1}
+svg.chart .tk{fill:var(--muted);font-family:var(--f-mono);font-size:11px}
+svg.chart .al{fill:var(--muted);font-size:12px}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:13px;color:var(--muted);margin-top:6px}
+.legend i,.sw{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+details.code{border:1px solid var(--line);border-radius:8px;background:var(--code)}
+details.code summary{cursor:pointer;padding:9px 12px;font-size:14px;color:var(--muted)}
+details.code pre{margin:0;padding:12px;overflow-x:auto;font-family:var(--f-mono);font-size:13px;line-height:1.5;border-top:1px solid var(--line)}
+
+[hidden]{display:none!important}
+.lab>*,.content>*,.grid2>*{min-width:0}
+.device{contain:inline-size}
+.mono,textarea.mono{font-family:var(--f-mono);font-size:13.5px;line-height:1.5}
+iframe.pv{width:100%;min-height:340px;border:1px solid var(--line);border-radius:8px;background:#ffffff}
+.pv.sm{min-height:90px}
+div.pv.safe{border:1px solid var(--line);border-radius:8px;padding:8px;background:var(--surface);font-size:15px;white-space:pre-wrap;word-break:break-word}
+.checks{list-style:none;margin:0;padding:0;display:grid;gap:6px;font-size:14.5px}
+pre.out{margin:0;background:var(--code);border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-family:var(--f-mono);font-size:13px;overflow-x:auto;white-space:pre-wrap;min-height:2.4em}
+.boxviz{display:flex;justify-content:center;padding:8px;overflow-x:auto}
+.bm{background:repeating-linear-gradient(45deg,var(--surface-2),var(--surface-2) 6px,var(--surface) 6px,var(--surface) 12px);border:1px dashed var(--muted);position:relative}
+.bb{border-style:solid;border-color:var(--orange);background:color-mix(in srgb,var(--sky) 22%,var(--surface));position:relative}
+.bc{background:var(--uel);color:#fff;min-height:60px;display:flex;align-items:center;justify-content:center;font-family:var(--f-mono);font-size:12px;text-align:center}
+.lb{position:absolute;top:-1px;left:4px;font-size:10.5px;font-family:var(--f-mono);color:var(--muted);transform:translateY(-100%)}
+.device{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface-2);position:relative}
+.screen{transform-origin:0 0;background:#f7f4ef;color:#2b2118}
+.topbar{background:#5a3b22;color:#fff;padding:10px 16px;font-weight:700}
+.pcard{background:#ffffff;color:#2b2118;border:1px solid #e3d9cc;border-radius:8px;padding:10px;display:grid;gap:6px;font-size:14px}
+.pcard .pimg{aspect-ratio:16/9;max-width:100%;border-radius:6px;background:linear-gradient(135deg,#c9a27a,#8a5a35)}
+.pcard button{background:#5a3b22;color:#fff;border:0;border-radius:6px;padding:7px;font-size:13px}
+.shop{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.shop .pcard .btn{background:#5a3b22;color:#fff;border:0}
+.demo-form{min-width:0;grid-template-columns:minmax(0,1fr);display:grid;gap:10px;background:var(--surface-2);border-radius:10px;padding:14px;align-content:start}
+.demo-form .ff input{width:100%;min-width:0;box-sizing:border-box}
+.demo-form .ff input[type=checkbox]{width:auto}
+.demo-form .ff{min-width:0;display:grid;gap:4px;font-size:14.5px}
+.demo-form input[type=text],.demo-form input[type=email],.demo-form input[type=tel],.demo-form input[type=date],.demo-form input[type=number]{padding:8px 10px;border:1px solid var(--line);border-radius:7px;background:var(--bg);color:var(--fg);font:inherit}
+.demo-form .ff.err input{border-color:var(--bad);outline:2px solid var(--bad-bg)}
+.serp{background:#ffffff;color:#202124;border:1px solid var(--line);border-radius:8px;padding:14px;font-family:Arial,sans-serif;display:grid;gap:4px}
+.serp .su{font-size:13px;color:#4d5156}.serp .stt{font-size:19px;color:#1a0dab;line-height:1.3}.serp .sd{font-size:14px;color:#4d5156;line-height:1.5}
+</style>
+
+<header class="band">
+  <div class="wrap">
+    <div>
+      <div class="eyebrow">Trường Đại học Kinh tế - Luật · Khoa Hệ thống thông tin · BIE5030</div>
+      <h1>Phát triển web kinh doanh</h1>
+      <div class="meta"><span>Business Website Development · 3 tín chỉ</span><span>10 module · 10 lab</span><span>Giáo trình: Connolly &amp; Hoar (2022)</span><span>Biên soạn: ThS. Phạm Lê Quang</span></div>
+      <div class="prog"><span>Tiến độ của bạn</span><div class="bar"><i id="pbar"></i></div><span id="ptxt" class="num">0%</span></div>
+    </div>
+    <div>
+      <svg class="funnel-mark" viewBox="0 0 150 96" aria-hidden="true"><rect x="4" y="6" width="142" height="84" rx="6" fill="none" stroke="#ffffff" stroke-width="2" opacity=".9"/><line x1="4" y1="20" x2="146" y2="20" stroke="#ffffff" stroke-width="2" opacity=".9"/><circle cx="13" cy="13" r="2.5" fill="#f05a23"/><circle cx="21" cy="13" r="2.5" fill="#ffffff"/><circle cx="29" cy="13" r="2.5" fill="#00aeef"/><text x="16" y="46" fill="#00aeef" font-family="Roboto Mono, monospace" font-size="16">&lt;/&gt;</text><rect x="62" y="32" width="72" height="8" rx="2" fill="#ffffff" opacity=".85"/><rect x="62" y="46" width="52" height="8" rx="2" fill="#ffffff" opacity=".55"/><rect x="16" y="64" width="44" height="16" rx="4" fill="#f05a23"/></svg>
+      <div class="band-tools"><button class="chip-btn" id="presentBtn" aria-pressed="false">Chế độ trình chiếu</button></div>
+    </div>
+  </div>
+</header>
+<nav class="tabs" aria-label="Điều hướng học phần"><div class="wrap" id="tabs"></div></nav>
+<main><div class="wrap" id="app"></div></main>
+<script>
+// ===== DỮ LIỆU HỌC PHẦN BIE5030 =====
+const COURSE = {key:"bie5030-v1"};
+const CASE = "Cửa hàng Mẫu";
+const ITEMS = [
+  {k:"overview", t:"Tổng quan module", s:"Đọc · 5 phút"},
+  {k:"prep", t:"Chuẩn bị trước buổi học", s:"Đọc · 45 phút"},
+  {k:"ideas", t:"Ý chính", s:"Đọc · 10 phút"},
+  {k:"worked", t:"Ví dụ mẫu: thử trước", s:"Thực hành · 20 phút"},
+  {k:"lab", t:"Lab tương tác", s:"Thực hành · 30 phút"},
+  {k:"live", t:"Hoạt động trên lớp", s:"Thảo luận · 30 phút"},
+  {k:"quiz", t:"Câu hỏi luyện tập", s:"Trắc nghiệm · 10 phút"},
+  {k:"case", t:"Tình huống Cửa hàng Mẫu", s:"Thảo luận · 20 phút"},
+  {k:"wrap", t:"Tổng kết và tự đánh giá", s:"Tự đánh giá · 5 phút"}
+];
+const MODULES = [
+{ id:1, week:"Tuần 1", title:"Website trong kinh doanh và cách web vận hành", ch:"Connolly & Hoar Ch1–2 · Felke-Morris Ch1", sub:"Vai trò của website, mô hình client–server, HTTP, URL, tên miền và hosting", clo:"CLO1",
+  goals:["Xác định mục tiêu kinh doanh và loại website phù hợp: giới thiệu, bán hàng, thu thập khách hàng tiềm năng, nội dung","Giải thích mô hình client–server và chu trình yêu cầu – phản hồi HTTP","Phân tích các thành phần của URL và ý nghĩa mã trạng thái HTTP","Phân biệt tên miền, DNS, hosting và vai trò của từng thành phần"],
+  prep:["Đọc Connolly & Hoar (2022), Chương 1 và 2.","Cài đặt Visual Studio Code và trình duyệt Chrome; mở công cụ DevTools (F12), xem thẻ Network khi tải một trang bán hàng.","Chọn 2 website bán hàng tại Việt Nam, ghi lại mục tiêu chính và hành động mong muốn của khách trên trang chủ."],
+  ideas:[
+   ["Website trong kinh doanh","Website là kênh sở hữu (owned media) của doanh nghiệp: giới thiệu thương hiệu, bán hàng, thu thập khách hàng tiềm năng (lead), chăm sóc khách hàng. Mục tiêu kinh doanh quyết định cấu trúc trang và chỉ số đo lường."],
+   ["Client – server","Trình duyệt (client) gửi yêu cầu HTTP tới máy chủ (server); máy chủ trả về phản hồi gồm mã trạng thái, tiêu đề (headers) và nội dung (HTML, CSS, JS, ảnh, JSON)."],
+   ["URL","Gồm giao thức (https), tên miền, đường dẫn, chuỗi truy vấn (?key=value) và phân đoạn (#). URL rõ nghĩa giúp người dùng và công cụ tìm kiếm hiểu nội dung trang."],
+   ["Mã trạng thái","2xx thành công (200); 3xx chuyển hướng (301 vĩnh viễn, 302 tạm thời); 4xx lỗi phía client (403 bị cấm, 404 không tìm thấy); 5xx lỗi máy chủ (500)."]
+  ],
+  worked:{q:"Phân tích URL https://cuahangmau.vn/san-pham/tui-xach?mau=nau&trang=2#danh-gia: giao thức, tên miền, đường dẫn, tham số truy vấn, phân đoạn. Nếu đổi đường dẫn cũ /sp?id=15 sang đường dẫn mới, máy chủ nên trả mã trạng thái nào?",
+    a:["Giao thức: https (kết nối mã hóa).","Tên miền: cuahangmau.vn; đường dẫn: /san-pham/tui-xach.","Tham số: mau = nau, trang = 2; phân đoạn: #danh-gia (trình duyệt cuộn tới phần đánh giá, không gửi lên máy chủ).","Đổi đường dẫn vĩnh viễn: trả 301 để trình duyệt và công cụ tìm kiếm chuyển sang URL mới, giữ giá trị SEO."]},
+  lab:"L1",
+  live:["DevTools (10 phút): cả lớp mở thẻ Network trên cùng một trang, đếm số yêu cầu và tổng dung lượng tải.","Ghép cặp (10 phút): mỗi cặp xác định mục tiêu và hành động chính (call to action) trên trang chủ của 2 website đã chọn.","Phiếu ra lớp: nêu sự khác nhau giữa tên miền và hosting."],
+  case:{ctx:"Cửa hàng Mẫu (cửa hàng túi xách thủ công, tình huống giả định) đang bán qua mạng xã hội và muốn có website riêng.", qs:["Xác định 2 mục tiêu kinh doanh chính của website và chỉ số đo lường mỗi mục tiêu.","Đề xuất cấu trúc URL cho trang danh mục, trang sản phẩm, trang chính sách.","Cửa hàng cần chuẩn bị những gì về tên miền và hosting?"]},
+  quiz:[
+   {q:"Mã trạng thái nào cho biết trang không tồn tại?",o:["200","301","404","500"],a:2,e:"404 Not Found: tài nguyên không tồn tại trên máy chủ."},
+   {q:"Phần nào của URL không được gửi lên máy chủ?",o:["Đường dẫn","Chuỗi truy vấn","Phân đoạn (#...)","Tên miền"],a:2,e:"Phân đoạn chỉ được trình duyệt xử lý."},
+   {q:"DNS có vai trò gì?",o:["Lưu trữ mã nguồn website","Chuyển tên miền thành địa chỉ IP","Mã hóa dữ liệu","Tạo giao diện"],a:1,e:"DNS phân giải tên miền thành địa chỉ IP của máy chủ."},
+   {q:"Chuyển URL cũ sang URL mới vĩnh viễn nên dùng mã nào?",o:["200","301","302","403"],a:1,e:"301 báo chuyển hướng vĩnh viễn, giúp giữ thứ hạng tìm kiếm."}
+  ],
+  wrap:["Tôi xác định được mục tiêu kinh doanh của một website.","Tôi giải thích được chu trình yêu cầu – phản hồi HTTP.","Tôi đọc được các thành phần URL và mã trạng thái."]
+},
+{ id:2, week:"Tuần 2", title:"HTML: cấu trúc trang và ngữ nghĩa", ch:"Connolly & Hoar Ch3 · Felke-Morris Ch2, Ch4", sub:"Thẻ HTML, cấu trúc ngữ nghĩa, liên kết, hình ảnh và khả năng truy cập", clo:"CLO1, CLO2",
+  goals:["Viết tài liệu HTML đúng cấu trúc: doctype, head, body, lang, meta","Sử dụng thẻ ngữ nghĩa: header, nav, main, section, article, footer","Chèn liên kết, hình ảnh có văn bản thay thế (alt) và danh sách","Kiểm tra lỗi HTML cơ bản và khả năng truy cập"],
+  prep:["Đọc Connolly & Hoar (2022), Chương 3.","Đọc mục HTML trên MDN Web Docs: 'Structuring content with HTML'.","Phác thảo trên giấy bố cục trang sản phẩm của Cửa hàng Mẫu."],
+  ideas:[
+   ["Cấu trúc tài liệu","<!DOCTYPE html>, thẻ html có thuộc tính lang=\"vi\", phần head (title, meta charset, meta viewport, meta description) và phần body chứa nội dung hiển thị."],
+   ["HTML ngữ nghĩa","Dùng thẻ đúng ý nghĩa: header, nav, main, article, section, aside, footer. Ngữ nghĩa giúp trình đọc màn hình và công cụ tìm kiếm hiểu trang."],
+   ["Tiêu đề","Mỗi trang có một h1 mô tả nội dung chính; h2, h3 theo thứ bậc, không nhảy cấp để trang trí."],
+   ["Hình ảnh và liên kết","Mọi ảnh nội dung cần alt mô tả; liên kết dùng văn bản rõ nghĩa ('Xem chính sách đổi trả' thay vì 'bấm vào đây')."]
+  ],
+  worked:{q:"Tìm 5 lỗi trong đoạn mã: <html><head><title></title></head><body><h3>Túi xách da</h3><img src=\"tui.jpg\"><div>Giá: 850.000đ</div><a href=\"/mua\">Bấm vào đây</a><h1>Cửa hàng Mẫu</h1></body></html>",
+    a:["Thiếu <!DOCTYPE html> và thuộc tính lang=\"vi\" trên thẻ html.","Thẻ title rỗng; thiếu meta charset và meta viewport.","Tiêu đề sai thứ bậc: h3 đứng trước h1; tên sản phẩm nên là h1 của trang sản phẩm.","Ảnh thiếu alt, ví dụ alt=\"Túi xách da bò màu nâu\".","Liên kết 'Bấm vào đây' không rõ nghĩa; nên dùng 'Thêm vào giỏ hàng' (và thực tế nên là nút button trong biểu mẫu)."]},
+  lab:"L2",
+  live:["Sửa lỗi (10 phút): lớp cùng sửa đoạn mã ở Ví dụ mẫu trong Lab L2 đến khi điểm kiểm tra đạt 100.","Nhóm (15 phút): viết khung HTML ngữ nghĩa cho trang sản phẩm.","Phiếu ra lớp: vì sao alt quan trọng với cả người dùng và SEO?"],
+  case:{ctx:"Trang sản phẩm thử nghiệm của Cửa hàng Mẫu được dựng bằng các thẻ div lồng nhau, ảnh không có alt và có 3 thẻ h1.", qs:["Những vấn đề nào ảnh hưởng tới khả năng truy cập và SEO?","Viết lại khung trang bằng thẻ ngữ nghĩa.","Đặt văn bản alt cho 3 ảnh: ảnh sản phẩm chính, ảnh chi tiết đường may, logo."]},
+  quiz:[
+   {q:"Thẻ nào chứa nội dung chính, duy nhất của trang?",o:["<section>","<main>","<aside>","<header>"],a:1,e:"Mỗi trang chỉ có một <main> chứa nội dung chính."},
+   {q:"Thuộc tính alt của thẻ img dùng để làm gì?",o:["Tăng kích thước ảnh","Mô tả ảnh cho trình đọc màn hình và khi ảnh không tải được","Tạo liên kết","Đặt màu nền"],a:1,e:"alt là văn bản thay thế, hỗ trợ truy cập và SEO."},
+   {q:"Thẻ meta viewport cần thiết để làm gì?",o:["Khai báo bảng mã","Hiển thị đúng trên thiết bị di động","Mô tả trang cho công cụ tìm kiếm","Nạp CSS"],a:1,e:"Viewport giúp trang co giãn theo chiều rộng thiết bị."},
+   {q:"Nhận định nào đúng về thẻ tiêu đề?",o:["Dùng h1 cho mọi chữ to","Mỗi trang nên có một h1, các cấp tiếp theo theo thứ bậc","h3 luôn đứng trước h2","Không cần tiêu đề nếu có ảnh"],a:1,e:"Tiêu đề tạo dàn ý cho trang; giữ đúng thứ bậc."}
+  ],
+  wrap:["Tôi viết được khung HTML đúng chuẩn.","Tôi dùng được thẻ ngữ nghĩa thay cho div.","Tôi kiểm tra được lỗi alt, tiêu đề và liên kết."]
+},
+{ id:3, week:"Tuần 3", title:"CSS: bộ chọn, màu chữ và mô hình hộp", ch:"Connolly & Hoar Ch4 · Felke-Morris Ch3, Ch4", sub:"Định kiểu trang theo nhận diện thương hiệu", clo:"CLO2",
+  goals:["Viết quy tắc CSS với bộ chọn phần tử, lớp, id, thuộc tính và trạng thái","Tính độ ưu tiên (specificity) và giải thích cơ chế cascade","Áp dụng mô hình hộp: content, padding, border, margin, box-sizing","Xây dựng bộ biến CSS cho màu, chữ theo nhận diện thương hiệu"],
+  prep:["Đọc Connolly & Hoar (2022), Chương 4.","Đọc mục 'CSS building blocks' trên MDN Web Docs.","Chuẩn bị bảng màu và phông chữ thương hiệu cho website của nhóm."],
+  ideas:[
+   ["Quy tắc CSS","Bộ chọn { thuộc tính: giá trị; }. Có thể đặt trong tệp .css riêng (khuyến nghị), thẻ style hoặc thuộc tính style."],
+   ["Cascade và specificity","Khi nhiều quy tắc cùng áp dụng, quy tắc có độ ưu tiên cao hơn thắng: inline > id > lớp, thuộc tính, trạng thái > phần tử. Cùng mức thì quy tắc viết sau thắng."],
+   ["Mô hình hộp","Mỗi phần tử là một hộp gồm nội dung, padding, border, margin. Với box-sizing: border-box, width đã bao gồm padding và border, giúp tính bố cục dễ hơn."],
+   ["Biến CSS","Khai báo --mau-chinh: #144e8c; trong :root và dùng var(--mau-chinh). Đổi thương hiệu chỉ cần sửa một chỗ."]
+  ],
+  worked:{q:"Một thẻ div có width: 300px; padding: 20px; border: 2px solid; margin: 16px. Tính chiều rộng chiếm chỗ trên trang khi box-sizing là content-box và khi là border-box.",
+    a:["content-box: hộp hiển thị = 300 + 2×20 + 2×2 = 344px; chiếm chỗ kể cả margin = 344 + 2×16 = 376px.","border-box: hộp hiển thị = 300px (nội dung co lại còn 300 − 40 − 4 = 256px); chiếm chỗ kể cả margin = 332px.","Vì vậy nhiều dự án đặt *, *::before, *::after { box-sizing: border-box; } ngay từ đầu."]},
+  lab:"L3",
+  live:["Câu đố (5 phút): 3 quy tắc cùng tô màu một nút; lớp đoán màu cuối cùng rồi kiểm tra bằng Lab L3.","Nhóm (20 phút): viết biến CSS màu, chữ của thương hiệu nhóm và áp dụng cho trang sản phẩm.","Phiếu ra lớp: vì sao nên hạn chế dùng id và !important để định kiểu?"],
+  case:{ctx:"Cửa hàng Mẫu muốn website dùng màu nâu da và kem làm chủ đạo, nhưng mỗi trang hiện đang viết màu trực tiếp ở nhiều nơi, khó thống nhất.", qs:["Đề xuất bộ biến CSS cho màu và chữ.","Kiểm tra độ tương phản chữ và nền theo khuyến nghị WCAG (tối thiểu 4,5:1 cho chữ thường).","Đặt quy ước đặt tên lớp CSS cho nhóm phát triển."]},
+  quiz:[
+   {q:"Bộ chọn nào có độ ưu tiên cao nhất?",o:[".nut-mua","#nut-mua","button","button.nut-mua"],a:1,e:"Bộ chọn id có độ ưu tiên (1,0,0), cao hơn lớp và phần tử."},
+   {q:"Với box-sizing: border-box, thuộc tính width bao gồm những gì?",o:["Chỉ nội dung","Nội dung, padding và border","Nội dung, padding, border và margin","Chỉ padding"],a:1,e:"border-box tính width gồm cả padding và border, không gồm margin."},
+   {q:"Lợi ích chính của biến CSS là gì?",o:["Tải trang nhanh hơn","Quản lý giá trị dùng chung (màu, chữ) tại một chỗ","Thay thế HTML","Tăng bảo mật"],a:1,e:"Biến CSS giúp đồng bộ nhận diện và dễ bảo trì."},
+   {q:"Hai quy tắc cùng độ ưu tiên áp dụng cho một phần tử. Quy tắc nào thắng?",o:["Quy tắc viết trước","Quy tắc viết sau","Quy tắc ngắn hơn","Ngẫu nhiên"],a:1,e:"Theo cascade, quy tắc xuất hiện sau thắng khi độ ưu tiên bằng nhau."}
+  ],
+  wrap:["Tôi tính được độ ưu tiên của bộ chọn.","Tôi tính được kích thước hộp với hai giá trị box-sizing.","Tôi tạo được bộ biến CSS theo thương hiệu."]
+},
+{ id:4, week:"Tuần 4", title:"Bố cục và thiết kế đáp ứng", ch:"Connolly & Hoar Ch7 · Felke-Morris Ch6, Ch7", sub:"Flexbox, Grid, media query và nguyên tắc ưu tiên di động", clo:"CLO2, CLO3",
+  goals:["Dàn trang bằng Flexbox cho một chiều và Grid cho hai chiều","Viết media query theo nguyên tắc ưu tiên di động (mobile first)","Thiết kế lưới sản phẩm tự co giãn theo màn hình","Kiểm tra giao diện trên nhiều kích thước bằng DevTools"],
+  prep:["Đọc Connolly & Hoar (2022), Chương 7.","Đọc hướng dẫn Flexbox và Grid trên MDN Web Docs.","Chụp ảnh trang chủ của một website bán hàng ở 3 kích thước: điện thoại, máy tính bảng, máy tính."],
+  ideas:[
+   ["Flexbox","display: flex; sắp xếp phần tử theo một trục, căn chỉnh bằng justify-content, align-items, gap. Phù hợp thanh menu, hàng nút, thẻ sản phẩm."],
+   ["Grid","display: grid; chia cột và hàng. grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)) tạo lưới sản phẩm tự co giãn không cần media query."],
+   ["Mobile first","Viết CSS cho màn hình nhỏ trước, sau đó dùng @media (min-width: 768px) để bổ sung cho màn hình lớn. Phần lớn lượt truy cập thương mại điện tử đến từ điện thoại."],
+   ["Kiểm thử","Dùng chế độ thiết bị (device toolbar) của DevTools; tránh cuộn ngang; vùng chạm tối thiểu khoảng 44 × 44 px cho nút trên di động."]
+  ],
+  worked:{q:"Lưới sản phẩm cần 1 cột trên điện thoại (< 600px), 2 cột từ 600px, 4 cột từ 1024px. Viết CSS theo nguyên tắc mobile first.",
+    a:[".luoi-sp { display: grid; gap: 16px; grid-template-columns: 1fr; }","@media (min-width: 600px) { .luoi-sp { grid-template-columns: repeat(2, 1fr); } }","@media (min-width: 1024px) { .luoi-sp { grid-template-columns: repeat(4, 1fr); } }","Cách thay thế không cần media query: grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));"]},
+  lab:"L4",
+  live:["Dự đoán (5 phút): ở chiều rộng 800px, lưới sẽ có mấy cột? Kiểm tra bằng Lab L4.","Nhóm (20 phút): dựng bố cục trang chủ đáp ứng cho website của nhóm.","Phiếu ra lớp: khi nào dùng Flexbox, khi nào dùng Grid?"],
+  case:{ctx:"Website thử nghiệm của Cửa hàng Mẫu hiển thị 4 cột sản phẩm trên điện thoại, chữ rất nhỏ, khách phải phóng to để bấm nút mua.", qs:["Xác định nguyên nhân kỹ thuật (thiếu viewport, cột cố định, nút nhỏ).","Đề xuất điểm ngắt (breakpoint) và số cột cho từng kích thước.","Lập danh sách kiểm thử giao diện trên di động trước khi ra mắt."]},
+  quiz:[
+   {q:"Thuộc tính nào tạo lưới tự co giãn không cần media query?",o:["float: left","grid-template-columns: repeat(auto-fill, minmax(220px, 1fr))","display: inline","position: absolute"],a:1,e:"auto-fill kết hợp minmax tự tính số cột theo chiều rộng."},
+   {q:"Mobile first nghĩa là viết media query với điều kiện nào?",o:["max-width","min-width","orientation","print"],a:1,e:"Bắt đầu từ màn hình nhỏ, bổ sung bằng min-width cho màn hình lớn hơn."},
+   {q:"Flexbox phù hợp nhất cho trường hợp nào?",o:["Bố cục hai chiều phức tạp","Sắp xếp phần tử theo một hàng hoặc một cột","Bảng dữ liệu","Định dạng chữ"],a:1,e:"Flexbox xử lý bố cục một chiều."},
+   {q:"Dấu hiệu nào cho thấy trang chưa đáp ứng tốt trên di động?",o:["Có cuộn dọc","Có cuộn ngang","Có menu","Có ảnh"],a:1,e:"Cuộn ngang cho thấy nội dung vượt quá chiều rộng màn hình."}
+  ],
+  wrap:["Tôi chọn đúng Flexbox hoặc Grid cho từng bố cục.","Tôi viết được media query theo mobile first.","Tôi kiểm thử được giao diện trên nhiều kích thước."]
+},
+{ id:5, week:"Tuần 5", title:"Bảng, biểu mẫu và thu thập khách hàng tiềm năng", ch:"Connolly & Hoar Ch5 · Felke-Morris Ch8, Ch9", sub:"Biểu mẫu đặt hàng, đăng ký và kiểm tra dữ liệu nhập", clo:"CLO2, CLO3",
+  goals:["Tạo biểu mẫu với các kiểu input phù hợp: email, tel, number, select, checkbox","Gắn nhãn (label) và kiểm tra dữ liệu bằng thuộc tính HTML5: required, pattern, min, max","Thiết kế biểu mẫu ngắn, dễ hoàn thành trên di động","Bổ sung nội dung xin đồng ý xử lý dữ liệu cá nhân"],
+  prep:["Đọc Connolly & Hoar (2022), Chương 5.","Đọc mục 'Web forms' trên MDN Web Docs.","Thu thập 2 biểu mẫu đăng ký hoặc đặt hàng trên website thật và đếm số trường bắt buộc."],
+  ideas:[
+   ["Thành phần biểu mẫu","form (action, method), label gắn với input qua for/id, các kiểu input, select, textarea, button type=\"submit\"."],
+   ["Kiểm tra dữ liệu","Phía client: required, type=\"email\", pattern, minlength giúp phản hồi nhanh. Phía máy chủ: bắt buộc kiểm tra lại vì dữ liệu phía client có thể bị sửa."],
+   ["Tối ưu biểu mẫu","Chỉ hỏi thông tin cần thiết; dùng đúng kiểu input để điện thoại hiện bàn phím phù hợp; thông báo lỗi cụ thể, ngay cạnh trường bị lỗi."],
+   ["Dữ liệu cá nhân","Biểu mẫu thu thập họ tên, số điện thoại, email cần nêu mục đích và có lựa chọn đồng ý riêng cho việc nhận thông tin quảng cáo, phù hợp Luật Bảo vệ dữ liệu cá nhân 2025."]
+  ],
+  worked:{q:"Biểu mẫu đăng ký nhận ưu đãi hiện có 9 trường: họ, tên, ngày sinh, giới tính, email, điện thoại, địa chỉ, nghề nghiệp, thu nhập. Đề xuất phiên bản rút gọn và viết mã cho trường điện thoại Việt Nam 10 số bắt đầu bằng 0.",
+    a:["Giữ: họ tên, email hoặc điện thoại (một trong hai), ô đồng ý nhận ưu đãi. Bỏ các trường chưa dùng cho mục tiêu nhận ưu đãi.","Mã: <label for=\"sdt\">Số điện thoại</label> <input id=\"sdt\" name=\"sdt\" type=\"tel\" pattern=\"0[0-9]{9}\" required>","type=\"tel\" mở bàn phím số trên điện thoại; pattern kiểm tra đúng 10 chữ số bắt đầu bằng 0.","Máy chủ vẫn phải kiểm tra lại dữ liệu trước khi lưu."]},
+  lab:"L5",
+  live:["Thử nghiệm (10 phút): sinh viên điền biểu mẫu trong Lab L5 bằng điện thoại, ghi lại lỗi gặp phải.","Nhóm (15 phút): thiết kế biểu mẫu đặt hàng tối giản cho website nhóm.","Phiếu ra lớp: vì sao không thể chỉ dựa vào kiểm tra phía client?"],
+  case:{ctx:"Cửa hàng Mẫu chạy quảng cáo dẫn về trang đăng ký nhận mã giảm giá. Nhiều khách bấm vào nhưng ít người hoàn thành biểu mẫu 9 trường.", qs:["Những trường nào có thể bỏ hoặc để sau?","Thiết kế thông báo lỗi và ô đồng ý dữ liệu cá nhân.","Đo hiệu quả biểu mẫu bằng chỉ số nào?"]},
+  quiz:[
+   {q:"Kiểu input nào mở bàn phím số điện thoại trên di động?",o:["text","tel","email","search"],a:1,e:"type=\"tel\" gợi ý bàn phím số điện thoại."},
+   {q:"Thuộc tính nào bắt buộc người dùng nhập trường?",o:["pattern","required","placeholder","value"],a:1,e:"required ngăn gửi biểu mẫu khi trường trống."},
+   {q:"Vì sao mỗi input cần một label gắn qua for/id?",o:["Để trang đẹp hơn","Để trình đọc màn hình đọc đúng và bấm vào nhãn sẽ chọn ô nhập","Để tăng tốc tải","Để mã hóa dữ liệu"],a:1,e:"Label cải thiện khả năng truy cập và vùng bấm."},
+   {q:"Kiểm tra dữ liệu phía máy chủ cần thiết vì sao?",o:["Trình duyệt không hỗ trợ HTML5","Dữ liệu phía client có thể bị sửa hoặc bỏ qua","Để giảm dung lượng","Không cần thiết"],a:1,e:"Người dùng có thể vô hiệu hóa kiểm tra phía client; máy chủ phải tự kiểm tra."}
+  ],
+  wrap:["Tôi chọn đúng kiểu input cho từng loại dữ liệu.","Tôi viết được quy tắc kiểm tra bằng HTML5.","Tôi thiết kế được biểu mẫu ngắn, có xin đồng ý dữ liệu cá nhân."]
+},
+{ id:6, week:"Tuần 6", title:"JavaScript: nền tảng ngôn ngữ và DOM", ch:"Connolly & Hoar Ch8–9 · Felke-Morris Ch14", sub:"Biến, hàm, mảng, đối tượng, sự kiện và thao tác DOM", clo:"CLO2, CLO3",
+  goals:["Sử dụng biến, hàm, mảng, đối tượng trong JavaScript","Dùng các phương thức mảng filter, map, reduce, sort để xử lý danh sách sản phẩm","Bắt sự kiện và cập nhật DOM","Gỡ lỗi bằng console và DevTools"],
+  prep:["Đọc Connolly & Hoar (2022), Chương 8 và 9.","Ôn lại kiến thức học phần Tư duy lập trình: biến, điều kiện, vòng lặp, hàm.","Đọc mục 'JavaScript first steps' trên MDN Web Docs."],
+  ideas:[
+   ["Kiểu dữ liệu","Số, chuỗi, boolean, mảng, đối tượng. Danh sách sản phẩm thường là mảng các đối tượng: [{ ten, gia, danhMuc }]."],
+   ["Phương thức mảng","filter lọc theo điều kiện; map biến đổi từng phần tử; reduce gộp thành một giá trị (tổng tiền); sort sắp xếp."],
+   ["DOM","Trình duyệt biểu diễn trang thành cây đối tượng. document.querySelector chọn phần tử; textContent, classList, append để cập nhật."],
+   ["Sự kiện","element.addEventListener('click', hamXuLy). Các sự kiện thường gặp: click, input, change, submit."]
+  ],
+  worked:{q:"Cho mảng sp = [{ten:'Túi tote', gia:450000}, {ten:'Ví da', gia:320000}, {ten:'Balo', gia:980000}]. Viết biểu thức: (a) lọc sản phẩm dưới 500.000 đồng; (b) tạo mảng tên; (c) tính tổng giá.",
+    a:["(a) sp.filter(p => p.gia < 500000) → Túi tote, Ví da.","(b) sp.map(p => p.ten) → ['Túi tote', 'Ví da', 'Balo'].","(c) sp.reduce((tong, p) => tong + p.gia, 0) → 1.750.000.","Chạy thử từng biểu thức trong Lab L6 để kiểm tra kết quả."]},
+  lab:"L6",
+  live:["Lập trình đôi (15 phút): giải 4 bài trong Lab L6, đổi vai người gõ sau mỗi bài.","Trình bày (10 phút): 2 nhóm giải thích lời giải bài reduce.","Phiếu ra lớp: khác nhau giữa map và filter."],
+  case:{ctx:"Trang danh mục của Cửa hàng Mẫu có 60 sản phẩm; khách muốn lọc theo khoảng giá và sắp xếp theo giá tăng dần mà không tải lại trang.", qs:["Viết hàm lọc theo khoảng giá và danh mục.","Viết hàm sắp xếp và hiển thị lại danh sách.","Khi số sản phẩm lên 5.000, nên xử lý lọc ở trình duyệt hay máy chủ? Vì sao?"]},
+  quiz:[
+   {q:"Phương thức nào trả về mảng mới chỉ gồm phần tử thỏa điều kiện?",o:["map","filter","reduce","forEach"],a:1,e:"filter giữ lại phần tử thỏa điều kiện."},
+   {q:"[1, 2, 3].map(x => x * 2) cho kết quả nào?",o:["[1, 2, 3]","[2, 4, 6]","6","12"],a:1,e:"map nhân đôi từng phần tử."},
+   {q:"Lệnh nào chọn phần tử đầu tiên có lớp .gio-hang?",o:["document.getElement('.gio-hang')","document.querySelector('.gio-hang')","document.class('gio-hang')","window.find('.gio-hang')"],a:1,e:"querySelector nhận bộ chọn CSS."},
+   {q:"Sự kiện nào phù hợp để cập nhật kết quả lọc ngay khi người dùng gõ?",o:["submit","input","load","unload"],a:1,e:"input kích hoạt mỗi khi giá trị ô nhập thay đổi."}
+  ],
+  wrap:["Tôi dùng được filter, map, reduce, sort.","Tôi bắt được sự kiện và cập nhật DOM.","Tôi gỡ lỗi được bằng console."]
+},
+{ id:7, week:"Tuần 7", title:"Dữ liệu JSON, Fetch API và giỏ hàng", ch:"Connolly & Hoar Ch10, Ch15", sub:"Trao đổi dữ liệu với máy chủ và quản lý trạng thái giỏ hàng", clo:"CLO3",
+  goals:["Đọc và viết dữ liệu JSON","Gọi API bằng fetch, xử lý bất đồng bộ với async/await","Quản lý trạng thái giỏ hàng: thêm, sửa số lượng, xóa, tính tổng","Lưu trạng thái phía trình duyệt bằng localStorage và nhận biết giới hạn"],
+  prep:["Đọc Connolly & Hoar (2022), Chương 10 và 15.","Đọc mục 'Fetching data from the server' trên MDN Web Docs.","Xem cấu trúc JSON trả về từ một API công khai bằng trình duyệt."],
+  ideas:[
+   ["JSON","Định dạng văn bản biểu diễn đối tượng và mảng: {\"ten\": \"Ví da\", \"gia\": 320000}. JSON.parse chuyển chuỗi thành đối tượng; JSON.stringify làm ngược lại."],
+   ["Fetch API","const res = await fetch('/api/san-pham'); const data = await res.json(); Cần kiểm tra res.ok và bắt lỗi bằng try/catch."],
+   ["Trạng thái","Giỏ hàng là trạng thái (state) của ứng dụng: danh sách sản phẩm và số lượng. Giao diện được vẽ lại từ trạng thái mỗi khi trạng thái thay đổi."],
+   ["Lưu trữ","localStorage lưu dữ liệu nhỏ trên trình duyệt của người dùng; giỏ hàng đã đặt và giá bán phải xác nhận lại ở máy chủ. Học phần Phát triển web kinh doanh nâng cao (BIE5061) mở rộng với Angular, Node.js và MongoDB."]
+  ],
+  worked:{q:"Giỏ hàng có: Túi tote 450.000 đồng × 2, Ví da 320.000 đồng × 1. Mã giảm 10% cho đơn từ 1.000.000 đồng; phí giao hàng 30.000 đồng, miễn phí cho đơn sau giảm từ 1.000.000 đồng. Tính tổng thanh toán và viết trạng thái giỏ hàng dạng JSON.",
+    a:["Tạm tính = 450.000 × 2 + 320.000 = 1.220.000 đồng ≥ 1.000.000 nên được giảm 10% = 122.000 đồng.","Sau giảm = 1.098.000 đồng ≥ 1.000.000 nên miễn phí giao hàng. Tổng thanh toán = 1.098.000 đồng.","JSON: {\"items\":[{\"id\":\"tote\",\"gia\":450000,\"sl\":2},{\"id\":\"vi\",\"gia\":320000,\"sl\":1}],\"ma\":\"GIAM10\"}","Kiểm tra lại bằng Lab L7."]},
+  lab:"L7",
+  live:["Mô phỏng (10 phút): một sinh viên đóng vai máy chủ trả JSON, lớp viết lệnh fetch và xử lý kết quả.","Nhóm (15 phút): bổ sung quy tắc mã giảm giá mới cho giỏ hàng trong Lab L7 và kiểm thử các trường hợp biên.","Phiếu ra lớp: vì sao không tin giá sản phẩm gửi lên từ trình duyệt?"],
+  case:{ctx:"Khách của Cửa hàng Mẫu phản ánh giỏ hàng bị mất khi tải lại trang, và một khách sửa giá trong DevTools rồi đặt hàng với giá thấp.", qs:["Giải pháp lưu giỏ hàng giữa các lần tải trang là gì?","Lỗ hổng sửa giá xuất phát từ đâu? Máy chủ phải xử lý thế nào?","Lập danh sách trường hợp kiểm thử cho giỏ hàng."]},
+  quiz:[
+   {q:"JSON.parse dùng để làm gì?",o:["Chuyển đối tượng thành chuỗi","Chuyển chuỗi JSON thành đối tượng","Gửi dữ liệu lên máy chủ","Mã hóa dữ liệu"],a:1,e:"parse đọc chuỗi JSON thành giá trị JavaScript."},
+   {q:"Vì sao cần await khi gọi fetch?",o:["fetch trả về Promise, kết quả có sau khi mạng phản hồi","Để tăng tốc","Để mã hóa","Không cần"],a:0,e:"fetch là thao tác bất đồng bộ."},
+   {q:"Giá cuối cùng của đơn hàng nên được tính ở đâu?",o:["Chỉ trên trình duyệt","Trên máy chủ, dựa vào dữ liệu giá của hệ thống","Trong localStorage","Trong URL"],a:1,e:"Dữ liệu từ trình duyệt có thể bị sửa; máy chủ phải tính lại."},
+   {q:"localStorage có đặc điểm nào?",o:["Chia sẻ giữa mọi thiết bị","Lưu trên trình duyệt của người dùng, dung lượng nhỏ","Bảo mật tuyệt đối","Lưu trên máy chủ"],a:1,e:"localStorage chỉ tồn tại trên trình duyệt đó."}
+  ],
+  wrap:["Tôi đọc và viết được JSON.","Tôi gọi được API bằng fetch và xử lý lỗi.","Tôi quản lý được trạng thái giỏ hàng."]
+},
+{ id:8, week:"Tuần 8", title:"Trải nghiệm người dùng và tối ưu chuyển đổi", ch:"Felke-Morris Ch5 · Krug (2014)", sub:"Nguyên tắc thiết kế, khả năng truy cập, trang đích và thử nghiệm A/B", clo:"CLO3, CLO4",
+  goals:["Áp dụng nguyên tắc thiết kế: phân cấp thị giác, nhất quán, tương phản, khoảng trắng","Đánh giá khả năng truy cập theo các tiêu chí cơ bản của WCAG 2.2","Thiết kế trang đích (landing page) có lời kêu gọi hành động rõ ràng","Đọc kết quả thử nghiệm A/B và kiểm định ý nghĩa thống kê"],
+  prep:["Đọc Felke-Morris (2021), Chương 5 (Web Design).","Đọc Krug (2014), các chương về 'đừng bắt người dùng phải nghĩ'.","Chọn 1 trang đích quảng cáo và ghi lại 3 điểm làm bạn do dự khi định đăng ký hoặc mua."],
+  ideas:[
+   ["Nguyên tắc thiết kế","Phân cấp thị giác dẫn mắt người xem tới nội dung quan trọng; nhất quán giữa các trang; tương phản đủ để đọc; khoảng trắng tách nhóm thông tin."],
+   ["Khả năng truy cập","WCAG 2.2: văn bản thay thế cho ảnh, tương phản tối thiểu 4,5:1, thao tác được bằng bàn phím, nhãn rõ cho biểu mẫu, không dùng màu là tín hiệu duy nhất."],
+   ["Trang đích","Một mục tiêu, một lời kêu gọi hành động nổi bật; tiêu đề nêu lợi ích; bằng chứng tin cậy (đánh giá thật, chính sách đổi trả); biểu mẫu ngắn."],
+   ["Thử nghiệm A/B","Chia ngẫu nhiên lưu lượng cho 2 phiên bản, so sánh tỷ lệ chuyển đổi. Cần đủ cỡ mẫu và kiểm định ý nghĩa thống kê trước khi kết luận."]
+  ],
+  worked:{q:"Phiên bản A: 4.000 lượt truy cập, 120 đơn. Phiên bản B: 4.000 lượt truy cập, 156 đơn. Tính tỷ lệ chuyển đổi, mức tăng tương đối và kiểm định z hai tỷ lệ.",
+    a:["A: 120 / 4.000 = 3,0%; B: 156 / 4.000 = 3,9%; mức tăng tương đối = 30%.","Tỷ lệ gộp p = 276 / 8.000 = 3,45%; sai số chuẩn = √(p(1 − p)(1/4.000 + 1/4.000)) ≈ 0,00408.","z = (0,039 − 0,030) / 0,00408 ≈ 2,2; giá trị p hai phía ≈ 0,028 < 0,05.","Kết luận: B tốt hơn A có ý nghĩa thống kê ở mức 5%. Kiểm tra lại bằng Lab L8."]},
+  lab:"L8",
+  live:["Đánh giá chéo (15 phút): các nhóm dùng danh mục trong Lab L8 chấm trang đích của nhóm khác.","Thảo luận (10 phút): thử nghiệm chạy 2 ngày đã thấy B tốt hơn, có nên dừng sớm không?","Phiếu ra lớp: một thay đổi giúp trang đích của nhóm dễ dùng hơn."],
+  case:{ctx:"Cửa hàng Mẫu thử 2 phiên bản nút mua: 'Mua ngay' màu xám và 'Thêm vào giỏ – Giao 2 giờ' màu cam. Sau 3 ngày, phiên bản cam có thêm 8 đơn.", qs:["Dữ liệu đã đủ để kết luận chưa? Dùng Lab L8 để kiểm tra.","Cần bao nhiêu lượt truy cập để phát hiện mức tăng 20%?","Ngoài màu nút, nên thử nghiệm yếu tố nào trên trang sản phẩm?"]},
+  quiz:[
+   {q:"Tỷ lệ tương phản tối thiểu cho văn bản thường theo WCAG mức AA là bao nhiêu?",o:["2:1","3:1","4,5:1","7:1"],a:2,e:"Mức AA yêu cầu 4,5:1 cho văn bản thường."},
+   {q:"Nguyên tắc nào quan trọng nhất cho trang đích quảng cáo?",o:["Nhiều liên kết ra ngoài","Một mục tiêu và một lời kêu gọi hành động rõ ràng","Nhiều hiệu ứng động","Menu đầy đủ mọi danh mục"],a:1,e:"Trang đích tập trung vào một hành động chuyển đổi."},
+   {q:"Giá trị p = 0,28 trong thử nghiệm A/B có nghĩa là gì?",o:["B chắc chắn tốt hơn","Chưa đủ bằng chứng kết luận hai phiên bản khác nhau","A tốt hơn 28%","Thử nghiệm lỗi"],a:1,e:"p lớn hơn 0,05: chưa bác bỏ giả thuyết hai tỷ lệ bằng nhau."},
+   {q:"Dùng màu đỏ là cách duy nhất báo lỗi biểu mẫu vi phạm nguyên tắc nào?",o:["Tốc độ tải","Không dùng màu là tín hiệu duy nhất","Bảo mật","SEO"],a:1,e:"Người mù màu có thể không nhận ra; cần thêm biểu tượng hoặc chữ."}
+  ],
+  wrap:["Tôi đánh giá được một trang theo nguyên tắc thiết kế và truy cập.","Tôi thiết kế được trang đích một mục tiêu.","Tôi đọc được kết quả thử nghiệm A/B."]
+},
+{ id:9, week:"Tuần 9", title:"SEO, hiệu năng và quảng bá website", ch:"Felke-Morris Ch13 · Connolly & Hoar Ch18", sub:"Tối ưu tìm kiếm trên trang, Core Web Vitals và công cụ phân tích truy cập", clo:"CLO3, CLO4",
+  goals:["Tối ưu thẻ title, meta description, tiêu đề, URL thân thiện","Khai báo sitemap, robots.txt và dữ liệu có cấu trúc cho sản phẩm","Đánh giá hiệu năng bằng Core Web Vitals: LCP, INP, CLS","Gắn công cụ phân tích truy cập và đặt mục tiêu chuyển đổi"],
+  prep:["Đọc Felke-Morris (2021), Chương 13 (Web Promotion).","Đọc 'SEO Starter Guide' của Google Search Central.","Chạy PageSpeed Insights cho trang chủ website nhóm và ghi lại 3 chỉ số Core Web Vitals."],
+  ideas:[
+   ["SEO trên trang","Thẻ title (khoảng 50–60 ký tự) chứa từ khóa chính; meta description (khoảng 150–160 ký tự) hấp dẫn; một h1; URL ngắn, không dấu, phân cách bằng gạch nối; ảnh có alt."],
+   ["Kỹ thuật","Sitemap.xml liệt kê trang cần lập chỉ mục; robots.txt chỉ dẫn trình thu thập; dữ liệu có cấu trúc schema.org/Product giúp hiển thị giá, đánh giá trên kết quả tìm kiếm."],
+   ["Core Web Vitals","LCP (tải nội dung lớn nhất) tốt khi ≤ 2,5 giây; INP (độ phản hồi tương tác) tốt khi ≤ 200 ms; CLS (độ ổn định bố cục) tốt khi ≤ 0,1."],
+   ["Quảng bá và đo lường","Kết hợp SEO, quảng cáo tìm kiếm, mạng xã hội, email. Gắn Google Analytics, đặt sự kiện chuyển đổi (đặt hàng, đăng ký) để đo hiệu quả từng kênh."]
+  ],
+  worked:{q:"Viết title, meta description và slug cho trang sản phẩm 'Túi Tote Da Bò Thủ Công Màu Nâu – Cửa hàng Mẫu'.",
+    a:["Title (46 ký tự): Túi tote da bò thủ công màu nâu | Cửa hàng Mẫu","Meta description (133 ký tự): Túi tote da bò thật, may thủ công, ngăn đựng laptop 14 inch. Bảo hành đường may 12 tháng, giao nhanh 2 giờ tại TP.HCM. Đặt hàng ngay.","Slug: /tui-tote-da-bo-thu-cong-mau-nau","Kiểm tra độ dài và bản xem trước kết quả tìm kiếm bằng Lab L9."]},
+  lab:"L9",
+  live:["Thi nhanh (10 phút): mỗi nhóm viết title và meta description cho 1 sản phẩm, lớp bình chọn bản hấp dẫn nhất trên bản xem trước Lab L9.","Đo hiệu năng (15 phút): chạy PageSpeed Insights cho website nhóm, nhập chỉ số vào Lab L9, đề xuất 2 cải tiến.","Phiếu ra lớp: khác nhau giữa SEO và SEM."],
+  case:{ctx:"Trang sản phẩm của Cửa hàng Mẫu có title 'Trang chủ', URL dạng /product.php?id=15, ảnh 3 MB và LCP 5,1 giây trên di động.", qs:["Liệt kê các vấn đề SEO và hiệu năng theo thứ tự ưu tiên.","Viết lại title, meta description và URL.","Đề xuất biện pháp đưa LCP về dưới 2,5 giây."]},
+  quiz:[
+   {q:"Ngưỡng LCP được đánh giá tốt là bao nhiêu?",o:["≤ 1 giây","≤ 2,5 giây","≤ 4 giây","≤ 10 giây"],a:1,e:"LCP tốt khi không quá 2,5 giây."},
+   {q:"CLS đo điều gì?",o:["Tốc độ tải","Độ ổn định bố cục khi trang tải","Số liên kết","Độ phản hồi máy chủ"],a:1,e:"CLS đo mức xê dịch bất ngờ của bố cục."},
+   {q:"URL nào thân thiện với SEO nhất?",o:["/product.php?id=15","/tui-tote-da-bo-mau-nau","/Túi Tote Da Bò","/p/15/abc"],a:1,e:"URL ngắn, không dấu, có từ khóa, phân cách bằng gạch nối."},
+   {q:"Tệp nào liệt kê các trang cần công cụ tìm kiếm lập chỉ mục?",o:["robots.txt","sitemap.xml","style.css","manifest.json"],a:1,e:"sitemap.xml cung cấp danh sách URL cho công cụ tìm kiếm."}
+  ],
+  wrap:["Tôi viết được title, meta description, slug chuẩn SEO.","Tôi đọc được 3 chỉ số Core Web Vitals.","Tôi biết cách đo chuyển đổi bằng công cụ phân tích."]
+},
+{ id:10, week:"Tuần 10", title:"Máy chủ, bảo mật, hosting và vận hành", ch:"Connolly & Hoar Ch13, Ch16–17 · Felke-Morris Ch10, Ch12", sub:"Node.js cơ bản, lỗ hổng web phổ biến, triển khai và vận hành website", clo:"CLO3, CLO4",
+  goals:["Mô tả vai trò của lập trình phía máy chủ và một API đơn giản với Node.js, Express","Nhận diện lỗ hổng phổ biến theo OWASP: XSS, SQL injection, lộ dữ liệu, cấu hình sai","Áp dụng biện pháp phòng chống: kiểm tra đầu vào, mã hóa đầu ra, truy vấn tham số hóa, HTTPS","Lập kế hoạch triển khai: tên miền, hosting, sao lưu, giám sát"],
+  prep:["Đọc Connolly & Hoar (2022), Chương 13, 16 và 17.","Đọc danh sách OWASP Top 10 bản mới nhất.","Cài đặt Node.js bản LTS và chạy lệnh node -v."],
+  ideas:[
+   ["Phía máy chủ","Máy chủ nhận yêu cầu, kiểm tra quyền, xử lý nghiệp vụ, truy vấn cơ sở dữ liệu và trả về HTML hoặc JSON. Với Express: app.get('/api/san-pham', (req, res) => res.json(ds))."],
+   ["XSS","Kẻ tấn công chèn mã script vào nội dung (bình luận, đánh giá) để chạy trên trình duyệt người khác. Phòng chống: mã hóa đầu ra (escape), dùng textContent thay innerHTML, chính sách CSP."],
+   ["SQL injection","Ghép chuỗi người dùng nhập vào câu truy vấn khiến kẻ tấn công thay đổi câu lệnh. Phòng chống: truy vấn tham số hóa (prepared statement), phân quyền tối thiểu cho tài khoản cơ sở dữ liệu."],
+   ["Vận hành","HTTPS cho toàn bộ trang; cập nhật phần mềm; sao lưu định kỳ theo quy tắc 3-2-1; giám sát thời gian hoạt động; quy trình triển khai có môi trường thử nghiệm (staging) trước khi lên môi trường thật."]
+  ],
+  worked:{q:"Ô tìm kiếm gửi từ khóa vào câu truy vấn: \"SELECT * FROM san_pham WHERE ten LIKE '%\" + tuKhoa + \"%'\". Kẻ tấn công nhập: ' OR '1'='1. Câu truy vấn trở thành gì và sửa thế nào?",
+    a:["Câu lệnh: SELECT * FROM san_pham WHERE ten LIKE '%' OR '1'='1%' — điều kiện thay đổi theo ý kẻ tấn công; với các câu lệnh khác có thể lộ hoặc xóa dữ liệu.","Sửa bằng truy vấn tham số hóa: db.query('SELECT * FROM san_pham WHERE ten LIKE ?', ['%' + tuKhoa + '%']).","Kết hợp kiểm tra độ dài, ký tự đầu vào và tài khoản cơ sở dữ liệu chỉ có quyền đọc cho chức năng tìm kiếm.","Xem mô phỏng trong Lab L10."]},
+  lab:"L10",
+  live:["Mô phỏng (10 phút): lớp thử nhập nội dung độc hại trong Lab L10, so sánh chế độ không an toàn và an toàn.","Nhóm (15 phút): lập danh mục kiểm tra trước khi đưa website nhóm lên môi trường thật.","Ôn tập (5 phút): tổng hợp kiến thức 10 module cho đồ án; giới thiệu học phần Phát triển web kinh doanh nâng cao."],
+  case:{ctx:"Phần đánh giá sản phẩm của Cửa hàng Mẫu hiển thị bình luận bằng innerHTML. Một tài khoản lạ đăng bình luận chứa thẻ script.", qs:["Lỗ hổng gì đang tồn tại và rủi ro cho khách hàng là gì?","Đề xuất sửa mã và biện pháp phòng ngừa lâu dài.","Lập kế hoạch sao lưu và khôi phục nếu website bị tấn công."]},
+  quiz:[
+   {q:"Biện pháp nào phòng chống SQL injection hiệu quả nhất?",o:["Ẩn mã nguồn","Truy vấn tham số hóa","Dùng HTTPS","Đổi tên bảng"],a:1,e:"Tham số hóa tách dữ liệu khỏi câu lệnh SQL."},
+   {q:"Hiển thị bình luận người dùng an toàn hơn bằng cách nào?",o:["innerHTML","textContent hoặc escape ký tự đặc biệt","eval","document.write"],a:1,e:"textContent hiển thị nội dung dạng văn bản, không thực thi mã."},
+   {q:"Quy tắc sao lưu 3-2-1 nghĩa là gì?",o:["3 bản sao, 2 loại phương tiện, 1 bản ở nơi khác","3 ngày, 2 giờ, 1 phút","3 máy chủ, 2 tên miền, 1 hosting","Sao lưu 3 lần mỗi ngày"],a:0,e:"3 bản dữ liệu, trên 2 loại phương tiện, 1 bản lưu ngoài địa điểm chính."},
+   {q:"Express trong Node.js dùng để làm gì?",o:["Thiết kế giao diện","Xây dựng máy chủ web và API","Quản lý cơ sở dữ liệu quan hệ","Nén ảnh"],a:1,e:"Express là framework xây dựng máy chủ HTTP và API trên Node.js."}
+  ],
+  wrap:["Tôi giải thích được vai trò của máy chủ và API.","Tôi nhận diện và phòng chống được XSS, SQL injection.","Tôi lập được kế hoạch triển khai và sao lưu."]
+}
+];
+const GLOSSARY = [
+ ["A/B testing","Thử nghiệm so sánh hai phiên bản."],["Accessibility (a11y)","Khả năng truy cập cho mọi người dùng, kể cả người khuyết tật."],["API (Application Programming Interface)","Giao diện lập trình ứng dụng; máy chủ cung cấp dữ liệu qua HTTP."],["Box model","Mô hình hộp: content, padding, border, margin."],["Breakpoint","Điểm ngắt chiều rộng màn hình để đổi bố cục."],["Call to action (CTA)","Lời kêu gọi hành động."],["Cascade","Cơ chế xác định quy tắc CSS nào được áp dụng."],["CLS (Cumulative Layout Shift)","Độ xê dịch bố cục khi trang đang tải."],["CSS (Cascading Style Sheets)","Ngôn ngữ định dạng cách trình bày trang web."],["CSS variable","Biến CSS (custom property)."],["DNS (Domain Name System)","Hệ thống phân giải tên miền."],["DOM (Document Object Model)","Mô hình đối tượng tài liệu của trang web."],["Express","Framework xây dựng máy chủ web trên Node.js."],["Fetch API","Giao diện gửi yêu cầu HTTP từ JavaScript."],["Flexbox / Grid","Hai hệ bố cục CSS một chiều / hai chiều."],["Hosting","Dịch vụ lưu trữ và vận hành website trên máy chủ."],["HTML (HyperText Markup Language)","Ngôn ngữ đánh dấu cấu trúc nội dung trang web."],["HTTP (HyperText Transfer Protocol)","Giao thức truyền tải dữ liệu giữa trình duyệt và máy chủ."],["HTTP status code","Mã trạng thái phản hồi HTTP."],["INP (Interaction to Next Paint)","Độ phản hồi của trang khi người dùng tương tác."],["JSON (JavaScript Object Notation)","Định dạng trao đổi dữ liệu dạng văn bản."],["Landing page","Trang đích."],["LCP (Largest Contentful Paint)","Thời gian hiển thị phần nội dung lớn nhất."],["localStorage","Bộ nhớ lưu trữ cục bộ của trình duyệt."],["Media query","Điều kiện CSS theo đặc điểm thiết bị."],["Meta description","Thẻ mô tả trang hiển thị trên kết quả tìm kiếm."],["Mobile first","Thiết kế ưu tiên di động."],["Node.js","Môi trường chạy JavaScript phía máy chủ."],["OWASP (Open Worldwide Application Security Project) Top 10","Danh sách 10 nhóm rủi ro bảo mật web phổ biến."],["Parameterized query","Truy vấn tham số hóa."],["Responsive design","Thiết kế đáp ứng."],["robots.txt","Tệp chỉ dẫn trình thu thập dữ liệu của công cụ tìm kiếm."],["Semantic HTML","HTML ngữ nghĩa."],["SEO (Search Engine Optimization)","Tối ưu hóa công cụ tìm kiếm."],["Sitemap","Sơ đồ trang web cho công cụ tìm kiếm."],["Slug","Phần đường dẫn mô tả nội dung, viết không dấu."],["Specificity","Độ ưu tiên của bộ chọn CSS."],["SQL (Structured Query Language) injection","Tấn công chèn mã SQL."],["State","Trạng thái của ứng dụng."],["WCAG (Web Content Accessibility Guidelines)","Hướng dẫn về khả năng truy cập nội dung web của W3C."],["XSS (Cross-Site Scripting)","Tấn công chèn mã script độc hại vào trang web."]
+];
+// ===== TIỆN ÍCH =====
+const $ = (s, r=document) => r.querySelector(s);
+const h = (tag, attrs={}, html="") => { const e=document.createElement(tag); for (const k in attrs) e.setAttribute(k, attrs[k]); e.innerHTML=html; return e; };
+const nf = (x, d=0) => (isFinite(x) ? x : 0).toLocaleString("vi-VN", {maximumFractionDigits:d, minimumFractionDigits:d});
+const vnd = x => nf(Math.round(x)) + " đ";
+const pct = (x, d=1) => nf(x*100, d) + "%";
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const KEY = COURSE.key;
+let store = {done:{}, present:false};
+try { const s = JSON.parse(localStorage.getItem(KEY)); if (s && s.done) store = Object.assign(store, s); } catch(e) {}
+function save(){ try { localStorage.setItem(KEY, JSON.stringify(store)); } catch(e) {} }
+function progress(){
+  const total = MODULES.length * ITEMS.length;
+  const n = Object.keys(store.done).filter(k => store.done[k]).length;
+  const p = Math.round(n/total*100);
+  $("#pbar").style.width = p + "%"; $("#ptxt").textContent = p + "%";
+}
+function modPct(m){ return ITEMS.filter(it => store.done["m"+m.id+"-"+it.k]).length / ITEMS.length; }
+function ring(p){
+  const c = 2*Math.PI*16, off = c*(1-p);
+  return `<svg class="ring" viewBox="0 0 40 40" aria-label="${Math.round(p*100)}% hoàn thành"><circle cx="20" cy="20" r="16" fill="none" stroke="var(--line)" stroke-width="4"/><circle cx="20" cy="20" r="16" fill="none" stroke="var(--orange)" stroke-width="4" stroke-dasharray="${c}" stroke-dashoffset="${off}" transform="rotate(-90 20 20)" stroke-linecap="round"/><text x="20" y="24" text-anchor="middle" font-size="10" fill="var(--fg)" font-family="Roboto Mono">${Math.round(p*100)}%</text></svg>`;
+}
+function slider(id, label, min, max, step, val, fmt){
+  return `<div class="ctrl"><label for="${id}">${label}<b id="${id}-v"></b></label><input type="range" id="${id}" min="${min}" max="${max}" step="${step}" value="${val}" data-fmt="${fmt||""}"></div>`;
+}
+function bindSliders(root, cb){
+  const upd = () => { root.querySelectorAll("input[type=range]").forEach(r => {
+      const f = r.dataset.fmt, v = +r.value; const o = $("#"+r.id+"-v", root);
+      if (o) o.textContent = f==="vnd" ? vnd(v) : f==="pct" ? nf(v,1)+"%" : f==="pct2" ? nf(v,2)+"%" : f==="ms" ? v+" ms" : f==="mb" ? nf(v,1)+" MB" : f==="mbps" ? v+" Mbps" : nf(v);
+    }); cb(); };
+  root.querySelectorAll("input,select,textarea").forEach(i => i.addEventListener("input", upd));
+  upd();
+}
+const val = (root, id) => +$("#"+id, root).value;
+
+function labBlock(id){
+  const L=LABS[id]; const box=h("section",{class:"lab",id:"lab-"+L.k});
+  box.innerHTML=`<div class="lab-h"><h3>${L.title}</h3><span class="k">Lab ${id.slice(1)} · Module ${L.m}</span></div><div data-body></div>`;
+  L.render(box.querySelector("[data-body]")); return box;
+}
+
+// ===== QUIZ =====
+function quizBlock(qs, onDone){
+  const wrap=h("div",{class:"view"}); let answered=0, right=0;
+  qs.forEach((q,qi)=>{
+    const d=h("div",{class:"q card"}, `<b>Câu ${qi+1}. ${q.q}</b><div class="opts">${q.o.map((o,i)=>`<button type="button" data-i="${i}">${String.fromCharCode(65+i)}. ${o}</button>`).join("")}</div><p class="ex" hidden></p>`);
+    d.querySelector(".opts").addEventListener("click", e=>{ const b=e.target.closest("button"); if(!b||d.dataset.done) return; d.dataset.done=1; answered++;
+      const i=+b.dataset.i; if(i===q.a) right++;
+      d.querySelectorAll(".opts button").forEach(x=>{ if(+x.dataset.i===q.a) x.classList.add("right"); else if(x===b) x.classList.add("wrong"); });
+      const ex=d.querySelector(".ex"); ex.hidden=false; ex.innerHTML=(i===q.a?"<b>Chính xác.</b> ":"<b>Chưa đúng.</b> ")+q.e;
+      if(answered===qs.length && onDone) onDone(right, qs.length); });
+    wrap.appendChild(d);
+  });
+  return wrap;
+}
+
+// ===== VIEWS =====
+const TABS=[["home","Trang chủ"],["modules","Module"],["labs","Lab"],["assessment","Đánh giá"],["exam","Ôn tập"],["tools","Công cụ chia nhóm"],["resources","Tài liệu"],["glossary","Thuật ngữ"]];
+function renderTabs(cur){
+  const base = /^m\d/.test(cur) ? "modules" : cur;
+  $("#tabs").innerHTML = TABS.map(t=>`<a href="#${t[0]}" class="${t[0]===base?"on":""}">${t[1]}</a>`).join("");
+}
+function modRows(){
+  return `<div class="mlist">${MODULES.map(m=>`<a class="mrow" href="#m${m.id}"><span class="n">${m.id}</span><span><span class="t">${m.title}</span>${m.demo?'<span class="tag">Giảng thử</span>':""}<br><span class="s">${m.week} · ${m.ch} · ${m.sub}</span></span>${ring(modPct(m))}</a>`).join("")}</div>`;
+}
+const V = {};
+V.exam = () => { const d=h("div",{class:"view"}); d.innerHTML=`<h2 class="sec">Ôn tập trắc nghiệm</h2><p class="lead">Mỗi lượt lấy ngẫu nhiên 10 câu từ ngân hàng ${MODULES.reduce((a,m)=>a+m.quiz.length,0)} câu của ${MODULES.length} module.</p><div class="row"><button class="btn" type="button" id="newexam">Tạo đề mới</button><span id="examscore" class="note"></span></div><div id="exambox"></div>`;
+  const make=()=>{ const all=[]; MODULES.forEach(m=>m.quiz.forEach(q=>all.push(Object.assign({},q,{q:`[M${m.id}] `+q.q})))); for(let i=all.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[all[i],all[j]]=[all[j],all[i]];}
+    const box=$("#exambox",d); box.innerHTML=""; $("#examscore",d).textContent="";
+    box.appendChild(quizBlock(all.slice(0,10),(r,n)=>{$("#examscore",d).textContent=`Kết quả: ${r}/${n} câu đúng (${nf(r/n*10,1)} điểm).`;})); };
+  setTimeout(()=>{ $("#newexam",d).onclick=make; make(); }); return d; };
+V.tools = () => { const d=h("div",{class:"view"}); d.innerHTML=`<h2 class="sec">Công cụ chia nhóm</h2><p class="lead">Dùng khi giảng trực tiếp hoặc trực tuyến: chia nhóm, bấm giờ, gọi ngẫu nhiên và phiếu ra lớp.</p>
+ <div class="grid2"><section class="card" style="display:grid;gap:10px"><h3>Chia nhóm ngẫu nhiên</h3><label class="note" for="names">Danh sách sinh viên, mỗi dòng một tên</label><textarea id="names" rows="7">Nguyễn An\nTrần Bình\nLê Chi\nPhạm Dũng\nHoàng Giang\nVõ Hà\nĐặng Khoa\nBùi Lan\nĐỗ Minh\nNgô Nhi\nDương Phúc\nLý Quân</textarea><div class="row"><label class="note" for="gsize">Số nhóm</label><input type="number" id="gsize" value="4" min="2" max="20" style="width:80px"><button class="btn" type="button" id="split">Chia nhóm</button><button class="btn ghost" type="button" id="pick">Gọi ngẫu nhiên 1 người</button></div><div id="groups" class="note"></div></section>
+ <section class="card" style="display:grid;gap:10px;align-content:start"><h3>Đồng hồ đếm ngược</h3><div class="big-timer num" id="timer">05:00</div><div class="row" style="justify-content:center">${[3,5,10,15,20].map(m=>`<button class="btn ghost" type="button" data-min="${m}">${m} phút</button>`).join("")}</div><div class="row" style="justify-content:center"><button class="btn" type="button" id="tstart">Bắt đầu</button><button class="btn ghost" type="button" id="tstop">Dừng</button></div></section></div>
+ <section class="card" style="display:grid;gap:10px"><h3>Phiếu ra lớp</h3><div class="row"><label class="note" for="exitm">Module</label><select id="exitm">${MODULES.map(m=>`<option value="${m.id}">${m.id}. ${m.title}</option>`).join("")}</select></div><ol id="exitq" style="margin:0;padding-left:22px;display:grid;gap:6px"></ol></section>`;
+  setTimeout(()=>{
+    const names=()=>$("#names",d).value.split("\n").map(s=>s.trim()).filter(Boolean);
+    $("#split",d).onclick=()=>{ const n=names().sort(()=>Math.random()-.5), g=Math.max(2,+$("#gsize",d).value||2), out=[...Array(g)].map(()=>[]); n.forEach((x,i)=>out[i%g].push(x)); $("#groups",d).innerHTML=out.map((o,i)=>`<p><b>Nhóm ${i+1}:</b> ${o.map(esc).join(", ")}</p>`).join(""); };
+    $("#pick",d).onclick=()=>{ const n=names(); $("#groups",d).innerHTML=n.length?`<p style="font-size:24px;color:var(--fg)"><b>${esc(n[Math.floor(Math.random()*n.length)])}</b></p>`:""; };
+    let left=300, iv=null; const show=()=>{ $("#timer",d).textContent=String(Math.floor(left/60)).padStart(2,"0")+":"+String(left%60).padStart(2,"0"); };
+    d.querySelectorAll("[data-min]").forEach(b=>b.onclick=()=>{ clearInterval(iv); iv=null; left=+b.dataset.min*60; show(); });
+    $("#tstart",d).onclick=()=>{ if(iv) return; iv=setInterval(()=>{ if(left>0){left--; show();} else {clearInterval(iv); iv=null;} },1000); };
+    $("#tstop",d).onclick=()=>{ clearInterval(iv); iv=null; };
+    const ex=()=>{ const m=MODULES[+$("#exitm",d).value-1]; $("#exitq",d).innerHTML=[`Điều quan trọng nhất tôi học được hôm nay về "${m.title.toLowerCase()}" là gì?`, m.quiz[0].q, `Một câu hỏi tôi vẫn còn băn khoăn về nội dung buổi học.`].map(x=>`<li>${x}</li>`).join(""); };
+    $("#exitm",d).onchange=ex; ex();
+  }); return d; };
+V.glossary = () => { const d=h("div",{class:"view"}); d.innerHTML=`<h2 class="sec">Thuật ngữ Anh – Việt</h2><input type="text" id="gq" placeholder="Tìm thuật ngữ, ví dụ: churn" aria-label="Tìm thuật ngữ" style="max-width:420px"><div class="gloss" id="gl"></div>`;
+  const draw=q=>{ $("#gl",d).innerHTML=GLOSSARY.filter(g=>(g[0]+g[1]).toLowerCase().includes(q.toLowerCase())).map(g=>`<div class="g card"><b>${g[0]}</b><span>${g[1]}</span></div>`).join(""); };
+  setTimeout(()=>{ $("#gq",d).oninput=e=>draw(e.target.value); draw(""); }); return d; };
+
+function moduleView(id, itemKey){
+  const m=MODULES[id-1]; const it=ITEMS.find(i=>i.k===itemKey)||ITEMS[0]; const idx=ITEMS.indexOf(it);
+  const d=h("div",{class:"mod"});
+  d.innerHTML=`<aside class="side"><nav class="mnav" aria-label="Chọn module">${MODULES.map(x=>`<a href="#m${x.id}" class="${x.id===id?"on":""}">M${x.id}</a>`).join("")}</nav>
+   <div><div class="eyebrow" style="color:var(--muted)">Module ${m.id} · ${m.week}</div><h3 style="margin-top:4px">${m.title}</h3><p class="note" style="margin-top:4px">${pct(modPct(m),0)} hoàn thành</p></div>
+   <div class="items">${ITEMS.map(x=>`<button type="button" data-k="${x.k}" class="${x.k===it.k?"on":""}"><span>${x.k==="case"?"Tình huống "+CASE:x.t}<small>${x.s}</small></span><span class="dot ${store.done["m"+id+"-"+x.k]?"done":""}"></span></button>`).join("")}</div></aside>
+   <article class="content" id="ct"></article>`;
+  d.querySelector(".items").addEventListener("click",e=>{ const b=e.target.closest("button"); if(b) location.hash=`m${id}-${b.dataset.k}`; });
+  const ct=d.querySelector("#ct");
+  ct.innerHTML=`<div class="kicker">Module ${m.id} · ${it.s}</div><h2>${it.k==="overview"?m.title:it.t}</h2>`;
+  const body=h("div",{class:"prose"});
+  if(it.k==="overview"){
+    body.innerHTML=`<p class="lead">${m.sub}.</p><div class="grid2" style="max-width:none"><div class="card"><h4 class="eyebrow" style="color:var(--muted)">Sau module này, bạn có thể</h4><ul style="margin-top:8px">${m.goals.map(g=>`<li>${g}</li>`).join("")}</ul></div><div class="card"><dl class="kv"><dt>Thời gian</dt><dd>${m.week}</dd><dt>Giáo trình</dt><dd>${m.ch}</dd><dt>Chuẩn đầu ra</dt><dd>${m.clo}</dd><dt>Lab</dt><dd>${LABS[m.lab].title}</dd><dt>Luyện tập</dt><dd>1 ví dụ mẫu, ${m.quiz.length} câu hỏi</dd></dl></div></div>`;
+    if(m.demoHtml){ body.innerHTML+=m.demoHtml; }
+    body.innerHTML+=`<p class="note">Làm lần lượt các mục ở cột trái. Bấm nút cam cuối mỗi mục để đánh dấu hoàn thành; tiến độ chỉ lưu trong trình duyệt này.</p>`;
+  } else if(it.k==="prep"){ body.innerHTML=`<ol>${m.prep.map(p=>`<li>${p}</li>`).join("")}</ol><div class="callout">Ghi chép câu hỏi phát sinh khi đọc để nêu trong phần hỏi – đáp trên lớp.</div>`;
+  } else if(it.k==="ideas"){ body.innerHTML=m.ideas.map(i=>`<section style="display:grid;gap:4px"><h4 style="font-size:17px">${i[0]}</h4><p>${i[1]}</p></section>`).join("");
+  } else if(it.k==="worked"){ body.innerHTML=`<div class="card"><p>${m.worked.q}</p></div><div class="callout or">Tự giải trên giấy trước, sau đó mới mở lời giải.</div><button class="btn ghost" type="button" id="showsol" style="justify-self:start">Xem lời giải</button><ol id="sol" hidden>${m.worked.a.map(a=>`<li>${a}</li>`).join("")}</ol>`;
+    setTimeout(()=>{ const b=$("#showsol",ct); if(b) b.onclick=()=>{ $("#sol",ct).hidden=false; b.hidden=true; }; });
+  } else if(it.k==="lab"){ body.style.maxWidth="none"; body.appendChild(labBlock(m.lab));
+  } else if(it.k==="live"){ body.innerHTML=`<ol>${m.live.map(p=>`<li>${p}</li>`).join("")}</ol><div class="row"><a class="btn ghost" href="#tools">Mở công cụ lớp học</a></div>`;
+  } else if(it.k==="quiz"){ body.appendChild(quizBlock(m.quiz,(r,n)=>{ const p=h("p",{class:"callout"},`Kết quả: ${r}/${n} câu đúng.`); body.appendChild(p); }));
+  } else if(it.k==="case"){ body.innerHTML=`<div class="card"><p><b>Bối cảnh.</b> ${m.case.ctx}</p></div><h4>Câu hỏi thảo luận</h4><ol>${m.case.qs.map(q=>`<li>${q}</li>`).join("")}</ol><p class="note">Dữ liệu về ${CASE} là giả định.</p>`;
+  } else if(it.k==="wrap"){ body.innerHTML=`<p>Tự đánh giá mức tự tin với từng nhận định (1 = chưa tự tin, 5 = rất tự tin):</p>${m.wrap.map((w,i)=>`<div class="row" style="justify-content:space-between;border-bottom:1px solid var(--line);padding:8px 0"><span style="flex:1;min-width:200px">${w}</span><span class="seg" data-conf="${i}">${[1,2,3,4,5].map(v=>`<button type="button" class="${(store["conf"+id+"_"+i]===v)?"on":""}" data-v="${v}">${v}</button>`).join("")}</span></div>`).join("")}<div class="callout">Nhận định nào dưới 3 điểm: quay lại mục Ý chính và Ví dụ mẫu, hoặc hỏi giảng viên ở buổi sau.</div>`;
+    setTimeout(()=>ct.querySelectorAll("[data-conf]").forEach(s=>s.addEventListener("click",e=>{ const b=e.target.closest("button"); if(!b) return; store["conf"+id+"_"+s.dataset.conf]=+b.dataset.v; save(); s.querySelectorAll("button").forEach(x=>x.className=x===b?"on":""); })));
+  }
+  ct.appendChild(body);
+  const key="m"+id+"-"+it.k, next=ITEMS[idx+1];
+  const foot=h("div",{class:"foot"},`<a class="btn ghost" href="${idx>0?`#m${id}-${ITEMS[idx-1].k}`:(id>1?`#m${id-1}`:"#modules")}">Mục trước</a><button class="btn" type="button" id="done">${store.done[key]?"Đã hoàn thành · Tiếp tục":"Đánh dấu hoàn thành và tiếp tục"}</button>`);
+  ct.appendChild(foot);
+  setTimeout(()=>{
+    $("#done",ct).onclick=()=>{ store.done[key]=true; save(); progress(); location.hash = next?`m${id}-${next.k}`:(id<MODULES.length?`m${id+1}`:"modules"); };
+    const pm=$("#pm2",ct); if(pm) pm.onclick=()=>togglePresent();
+  });
+  return d;
+}
+
+function togglePresent(force){ store.present = force===undefined ? !store.present : force; document.body.classList.toggle("present",store.present); $("#presentBtn").setAttribute("aria-pressed",store.present); save(); }
+$("#presentBtn").onclick=()=>togglePresent();
+
+function route(){
+  const raw=(location.hash||"#home").slice(1); const app=$("#app"); app.innerHTML="";
+  let mm=raw.match(/^m(\d+)(?:-([a-z]+))?$/);
+  renderTabs(raw);
+  if(mm && +mm[1]>=1 && +mm[1]<=MODULES.length){ app.appendChild(moduleView(+mm[1], mm[2]||"overview")); }
+  else { const f=V[raw]||V.home; const out=f(); const wrap=h("div",{class:"view"}); if(typeof out==="string") wrap.innerHTML=out; else wrap.appendChild(out); app.appendChild(wrap); }
+  window.scrollTo(0,0); progress();
+}
+window.addEventListener("hashchange",route);
+function start(){ togglePresent(!!store.present); route(); }
+// ===== TIỆN ÍCH RIÊNG =====
+function codeBox(code,title){ return `<details class="code"><summary>${title||"Mã tham khảo"}</summary><pre>${esc(code)}</pre></details>`; }
+function normCdf(z){ const t=1/(1+0.2316419*Math.abs(z)); const d=0.3989423*Math.exp(-z*z/2); const p=d*t*(0.3193815+t*(-0.3565638+t*(1.781478+t*(-1.821256+t*1.330274)))); return z>0?1-p:p; }
+const slugify = s => s.normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/đ/g,"d").replace(/Đ/g,"D").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"");
+const PRODUCTS=[{id:"tote",ten:"Túi tote da bò",gia:450000,dm:"Túi"},{id:"vi",ten:"Ví da cầm tay",gia:320000,dm:"Ví"},{id:"balo",ten:"Balo da mini",gia:980000,dm:"Balo"},{id:"dayden",ten:"Dây đeo thẻ",gia:120000,dm:"Phụ kiện"},{id:"cheo",ten:"Túi đeo chéo",gia:650000,dm:"Túi"},{id:"laptop",ten:"Túi laptop 14 inch",gia:890000,dm:"Túi"}];
+
+const LABS = {
+L1:{m:1, title:"Phân tích URL và mã trạng thái HTTP", k:"url-http", render(el){
+  const sc=[["Khách mở trang sản phẩm đang bán","200"],["Trang cũ /sp?id=15 đã chuyển hẳn sang /tui-tote-da-bo","301"],["Khách gõ sai đường dẫn /tui-totee","404"],["Nhân viên chưa đăng nhập vào trang /quan-tri","403"],["Máy chủ lỗi khi xử lý đơn hàng","500"],["Trang khuyến mãi tạm chuyển sang trang khác trong 1 tuần","302"]];
+  const codes=["200","301","302","403","404","500"];
+  el.innerHTML=`<div class="ctrl"><label for="l1u">Nhập URL để phân tích</label><input type="text" id="l1u" value="https://cuahangmau.vn/san-pham/tui-xach?mau=nau&amp;trang=2#danh-gia"></div>
+  <div class="tbl" data-u></div>
+  <h4>Chọn mã trạng thái phù hợp cho từng tình huống</h4>
+  <div class="sortq">${sc.map((s,i)=>`<div class="it"><span>${s[0]}</span><div class="seg" data-i="${i}">${codes.map(c=>`<button type="button" data-c="${c}">${c}</button>`).join("")}</div></div>`).join("")}</div>
+  <div class="row"><button class="btn" type="button" data-act="check">Kiểm tra</button><span class="note" data-out></span></div>`;
+  const draw=()=>{ let u; try{ u=new URL($("#l1u",el).value); }catch(e){ $("[data-u]",el).innerHTML=`<p class="callout">URL chưa hợp lệ. Kiểm tra giao thức (https://) và tên miền.</p>`; return; }
+    const q=[...u.searchParams.entries()];
+    $("[data-u]",el).innerHTML=`<table><tbody><tr><th>Giao thức</th><td class="num">${esc(u.protocol.replace(":",""))} ${u.protocol==="https:"?'<span class="badge ok">mã hóa</span>':'<span class="badge bad">không mã hóa</span>'}</td></tr><tr><th>Tên miền</th><td class="num">${esc(u.hostname)}</td></tr><tr><th>Đường dẫn</th><td class="num">${esc(decodeURIComponent(u.pathname))}</td></tr><tr><th>Tham số truy vấn</th><td class="num">${q.length?q.map(([k,v])=>`${esc(k)} = ${esc(v)}`).join("<br>"):"không có"}</td></tr><tr><th>Phân đoạn</th><td class="num">${esc(u.hash||"không có")} ${u.hash?'<span class="note">(không gửi lên máy chủ)</span>':""}</td></tr></tbody></table>`; };
+  $("#l1u",el).addEventListener("input",draw); draw();
+  const ans={}; el.querySelectorAll(".seg").forEach(s=>s.addEventListener("click",e=>{ const b=e.target.closest("button"); if(!b) return; s.querySelectorAll("button").forEach(x=>x.className=""); b.className="on"; ans[s.dataset.i]=b.dataset.c; }));
+  el.querySelector("[data-act=check]").onclick=()=>{ let ok=0; el.querySelectorAll(".seg").forEach(s=>{ const r=sc[s.dataset.i][1]; s.querySelectorAll("button").forEach(b=>b.className=b.dataset.c===r?"right":(b.dataset.c===ans[s.dataset.i]?"wrong":"")); if(ans[s.dataset.i]===r) ok++; }); el.querySelector("[data-out]").textContent=`Đúng ${ok}/${sc.length}.`; };
+}},
+L2:{m:2, title:"Soạn HTML và kiểm tra ngữ nghĩa", k:"html", render(el){
+  const start=`<html>\n<head>\n  <title></title>\n</head>\n<body>\n  <h3>Túi xách da</h3>\n  <img src="tui.jpg">\n  <div>Giá: 850.000đ</div>\n  <a href="/mua">Bấm vào đây</a>\n  <h1>Cửa hàng Mẫu</h1>\n</body>\n</html>`;
+  const good=`<!DOCTYPE html>\n<html lang="vi">\n<head>\n  <meta charset="utf-8">\n  <meta name="viewport" content="width=device-width, initial-scale=1">\n  <title>Túi xách da bò màu nâu | Cửa hàng Mẫu</title>\n  <meta name="description" content="Túi xách da bò thủ công, bảo hành đường may 12 tháng.">\n</head>\n<body>\n  <header><nav><a href="/">Cửa hàng Mẫu</a></nav></header>\n  <main>\n    <article>\n      <h1>Túi xách da bò màu nâu</h1>\n      <img src="tui.jpg" alt="Túi xách da bò màu nâu, quai đeo vai">\n      <p>Giá: 850.000 đ</p>\n      <a href="/gio-hang?them=tui-xach">Thêm vào giỏ hàng</a>\n    </article>\n  </main>\n  <footer><p>Chính sách đổi trả 7 ngày</p></footer>\n</body>\n</html>`;
+  el.innerHTML=`<p class="predict">Sửa mã ở khung bên trái; khung bên phải hiển thị kết quả và điểm kiểm tra ngữ nghĩa. Mục tiêu: đạt 10/10.</p>
+  <div class="grid2" style="grid-template-columns:1fr 1fr"><textarea id="l2c" rows="18" class="mono" spellcheck="false" aria-label="Mã HTML">${esc(start)}</textarea><iframe class="pv" sandbox="" title="Xem trước HTML" data-pv></iframe></div>
+  <div class="row"><button class="btn ghost" type="button" id="l2r">Khôi phục mã lỗi</button><button class="btn ghost" type="button" id="l2g">Xem mã mẫu đạt chuẩn</button></div>
+  <div class="stats" data-sc></div><ul class="checks" data-ck></ul>`;
+  const run=()=>{ const src=$("#l2c",el).value; el.querySelector("[data-pv]").srcdoc=src;
+    const d=new DOMParser().parseFromString(src,"text/html"); const low=src.toLowerCase();
+    const imgs=[...d.querySelectorAll("img")], links=[...d.querySelectorAll("a")], h1=d.querySelectorAll("h1").length;
+    const hs=[...d.querySelectorAll("h1,h2,h3,h4,h5,h6")].map(x=>+x.tagName[1]); let order=hs.length>0&&hs[0]===1; for(let i=1;i<hs.length;i++) if(hs[i]-hs[i-1]>1) order=false;
+    const C=[["Có khai báo <!DOCTYPE html>",low.trim().startsWith("<!doctype html")],["Thẻ html có lang=\"vi\"",/<html[^>]*lang=["']?vi/i.test(src)],["Có meta charset",!!d.querySelector("meta[charset]")],["Có meta viewport",!!d.querySelector('meta[name="viewport"]')],["Thẻ title không rỗng",!!(d.title&&d.title.trim())],["Có meta description",!!d.querySelector('meta[name="description"]')],["Có đúng 1 thẻ h1",h1===1],["Tiêu đề đúng thứ bậc, bắt đầu từ h1",order],["Mọi ảnh có alt không rỗng",imgs.length>0&&imgs.every(i=>(i.getAttribute("alt")||"").trim())],["Có thẻ ngữ nghĩa main và không dùng liên kết 'bấm vào đây'",!!d.querySelector("main")&&links.every(a=>!/bấm vào đây|click here/i.test(a.textContent))]];
+    const n=C.filter(c=>c[1]).length;
+    el.querySelector("[data-sc]").innerHTML=`<div class="stat hi"><span>Điểm ngữ nghĩa</span><b>${n}/10</b></div><div class="stat"><span>Số ảnh</span><b>${imgs.length}</b></div><div class="stat"><span>Số liên kết</span><b>${links.length}</b></div>`;
+    el.querySelector("[data-ck]").innerHTML=C.map(c=>`<li><span class="badge ${c[1]?"ok":"bad"}">${c[1]?"Đạt":"Chưa đạt"}</span> ${esc(c[0])}</li>`).join(""); };
+  $("#l2c",el).addEventListener("input",run); $("#l2r",el).onclick=()=>{ $("#l2c",el).value=start; run(); }; $("#l2g",el).onclick=()=>{ $("#l2c",el).value=good; run(); }; run();
+}},
+L3:{m:3, title:"Mô hình hộp và độ ưu tiên CSS", k:"css", render(el){
+  el.innerHTML=`<div class="ctrls">${slider("l3w","width",100,400,10,300)}${slider("l3p","padding",0,60,2,20)}${slider("l3b","border",0,20,1,2)}${slider("l3m","margin",0,60,2,16)}</div>
+  <label class="note"><input type="checkbox" id="l3bs"> box-sizing: border-box</label>
+  <div class="boxviz" data-bx></div><div class="stats" data-st></div>
+  <h4>Tính độ ưu tiên của bộ chọn</h4>
+  <div class="grid2" style="grid-template-columns:1fr 1fr">${[1,2,3].map(i=>`<div class="ctrl"><label for="l3s${i}">Quy tắc ${i}</label><input type="text" id="l3s${i}" class="mono" value="${["button.nut-mua","#gio-hang .nut-mua","main button"][i-1]}"></div>`).join("")}</div>
+  <div class="tbl" data-sp></div><div class="callout or" data-win></div>`;
+  const spec=sel=>{ let s=sel.replace(/::[\w-]+/g," E ").replace(/:not\(([^)]*)\)/g," $1 "); const a=(s.match(/#[\w-]+/g)||[]).length; s=s.replace(/#[\w-]+/g," "); const b=(s.match(/\.[\w-]+|\[[^\]]+\]|:[\w-]+(\([^)]*\))?/g)||[]).length; s=s.replace(/\.[\w-]+|\[[^\]]+\]|:[\w-]+(\([^)]*\))?/g," "); const c=(s.match(/(^|[\s>+~])([a-zA-Z][\w-]*|E)/g)||[]).length; return [a,b,c]; };
+  bindSliders(el,()=>{ const w=val(el,"l3w"),p=val(el,"l3p"),b=val(el,"l3b"),m=val(el,"l3m"),bb=$("#l3bs",el).checked;
+    const vis=bb?w:w+2*p+2*b, content=bb?Math.max(0,w-2*p-2*b):w, occ=vis+2*m;
+    el.querySelector("[data-bx]").innerHTML=`<div class="bm" style="padding:${m/2}px"><span class="lb">margin ${m}</span><div class="bb" style="border-width:${Math.max(1,b/2)}px;padding:${p/2}px"><span class="lb">padding ${p} · border ${b}</span><div class="bc" style="width:${content/2}px">nội dung ${content}px</div></div></div>`;
+    el.querySelector("[data-st]").innerHTML=[["Chiều rộng nội dung",content+"px"],["Hộp hiển thị (gồm border)",vis+"px"]].map(s=>`<div class="stat"><span>${s[0]}</span><b>${s[1]}</b></div>`).join("")+`<div class="stat hi"><span>Chiếm chỗ (gồm margin)</span><b>${occ}px</b></div>`;
+    const S=[1,2,3].map(i=>{ const v=$("#l3s"+i,el).value; return {v,s:spec(v)}; }); let wi=0; S.forEach((x,i)=>{ const a=x.s, b2=S[wi].s; if(a[0]>b2[0]||(a[0]===b2[0]&&(a[1]>b2[1]||(a[1]===b2[1]&&a[2]>=b2[2])))) wi=i; });
+    el.querySelector("[data-sp]").innerHTML=`<table><thead><tr><th>Quy tắc</th><th>Bộ chọn</th><th class="r">(id, lớp, phần tử)</th></tr></thead><tbody>${S.map((x,i)=>`<tr><td>${i+1}</td><td class="num">${esc(x.v)}</td><td class="r num">${i===wi?`<span class="badge ok">(${x.s.join(", ")})</span>`:`(${x.s.join(", ")})`}</td></tr>`).join("")}</tbody></table>`;
+    el.querySelector("[data-win]").textContent=`Nếu cả 3 quy tắc cùng áp dụng cho một nút, quy tắc ${wi+1} thắng (khi bằng nhau, quy tắc viết sau thắng). Công cụ tính gần đúng cho các bộ chọn thường gặp.`; });
+}},
+L4:{m:4, title:"Mô phỏng bố cục đáp ứng", k:"responsive", render(el){
+  el.innerHTML=`<p class="predict">Dự đoán trước: ở chiều rộng 800px, lưới sản phẩm có mấy cột? Kéo thanh chiều rộng màn hình để kiểm tra.</p>
+  <div class="ctrls">${slider("l4w","Chiều rộng màn hình (px)",320,1440,10,800)}</div>
+  <div class="row"><label><input type="radio" name="l4m" value="bp" checked> Media query (mobile first)</label><label><input type="radio" name="l4m" value="auto"> auto-fill + minmax</label></div>
+  <div class="ctrls" data-bp>${slider("l4a","Số cột từ 600px",1,4,1,2)}${slider("l4b","Số cột từ 1024px",2,6,1,4)}</div>
+  <div class="ctrls" data-au hidden>${slider("l4min","Chiều rộng tối thiểu mỗi thẻ (px)",140,360,10,220)}</div>
+  <div class="device" data-dv><div class="screen" data-sc></div></div>
+  <div class="stats" data-st></div><div data-code></div>`;
+  const draw=()=>{ const W=val(el,"l4w"), mode=el.querySelector('input[name="l4m"]:checked').value; el.querySelector("[data-bp]").hidden=mode!=="bp"; el.querySelector("[data-au]").hidden=mode!=="auto";
+    let cols, rule, css; const gap=16, pad=16;
+    if(mode==="bp"){ const a=val(el,"l4a"), b=val(el,"l4b"); cols=W>=1024?b:W>=600?a:1; rule=W>=1024?"@media (min-width: 1024px)":W>=600?"@media (min-width: 600px)":"Quy tắc gốc (màn hình nhỏ)";
+      css=`.luoi-sp { display: grid; gap: 16px; grid-template-columns: 1fr; }\n@media (min-width: 600px) {\n  .luoi-sp { grid-template-columns: repeat(${a}, 1fr); }\n}\n@media (min-width: 1024px) {\n  .luoi-sp { grid-template-columns: repeat(${b}, 1fr); }\n}`; }
+    else { const mn=val(el,"l4min"); cols=Math.max(1,Math.floor((W-2*pad+gap)/(mn+gap))); rule="Không cần media query"; css=`.luoi-sp {\n  display: grid; gap: 16px;\n  grid-template-columns: repeat(auto-fill, minmax(${mn}px, 1fr));\n}`; }
+    const avail=el.querySelector("[data-dv]").clientWidth||700, sc=Math.min(1,avail/W);
+    const scr=el.querySelector("[data-sc]"); scr.style.width=W+"px"; scr.style.transform=`scale(${sc})`;
+    scr.innerHTML=`<div class="topbar">Cửa hàng Mẫu</div><div style="display:grid;gap:${gap}px;padding:${pad}px;grid-template-columns:repeat(${cols},1fr)">${PRODUCTS.concat(PRODUCTS.slice(0,2)).map(p=>`<div class="pcard"><div class="pimg"></div><b>${p.ten}</b><span>${nf(p.gia)} đ</span><button type="button" tabindex="-1">Thêm vào giỏ</button></div>`).join("")}</div>`;
+    el.querySelector("[data-dv]").style.height=(scr.scrollHeight*sc+4)+"px";
+    const cw=(W-2*pad-(cols-1)*gap)/cols;
+    el.querySelector("[data-st]").innerHTML=`<div class="stat hi"><span>Số cột</span><b>${cols}</b></div><div class="stat"><span>Chiều rộng mỗi thẻ</span><b>${nf(cw)} px</b></div><div class="stat"><span>Quy tắc đang áp dụng</span><b style="font-size:14px">${rule}</b></div><div class="stat"><span>Thiết bị</span><b style="font-size:14px">${W<600?"Điện thoại":W<1024?"Máy tính bảng":"Máy tính"}</b></div>`;
+    el.querySelector("[data-code]").innerHTML=codeBox(css,"CSS tương ứng"); };
+  bindSliders(el,draw); el.querySelectorAll('input[name="l4m"]').forEach(r=>r.addEventListener("change",draw)); window.addEventListener("resize",()=>{ if(el.isConnected) draw(); });
+  const wait=()=>{ if(el.isConnected) draw(); else setTimeout(wait,30); }; setTimeout(wait,0);
+}},
+L5:{m:5, title:"Thiết kế biểu mẫu đăng ký nhận ưu đãi", k:"bieu-mau", render(el){
+  const F=[["hoten","Họ và tên","text",true,'autocomplete="name"'],["email","Email","email",true,'autocomplete="email"'],["sdt","Số điện thoại","tel",false,'pattern="0[0-9]{9}" autocomplete="tel"'],["ngaysinh","Ngày sinh","date",false,""],["diachi","Địa chỉ","text",false,'autocomplete="street-address"'],["nghe","Nghề nghiệp","text",false,""],["thunhap","Thu nhập hằng tháng","number",false,'min="0"']];
+  el.innerHTML=`<p class="predict">Chọn trường cần hỏi và trường bắt buộc. Biểu mẫu bên phải hoạt động thật: thử gửi khi để trống hoặc nhập sai định dạng.</p>
+  <div class="grid2" style="grid-template-columns:1fr 1.2fr"><div><div class="tbl"><table><thead><tr><th>Trường</th><th class="r">Hiển thị</th><th class="r">Bắt buộc</th></tr></thead><tbody>${F.map((f,i)=>`<tr><td>${f[1]} <span class="note">(${f[2]})</span></td><td class="r"><input type="checkbox" id="l5s${i}" ${i<3?"checked":""}></td><td class="r"><input type="checkbox" id="l5r${i}" ${f[3]?"checked":""}></td></tr>`).join("")}</tbody></table></div>
+  <label><input type="checkbox" id="l5c" checked> Ô đồng ý nhận thông tin ưu đãi (xử lý dữ liệu cá nhân)</label></div>
+  <form class="demo-form" data-f novalidate></form></div>
+  <div class="stats" data-st></div><div class="callout or" data-ins></div><div data-code></div>`;
+  bindSliders(el,()=>{ const on=F.map((f,i)=>$("#l5s"+i,el).checked), req=F.map((f,i)=>$("#l5r"+i,el).checked), consent=$("#l5c",el).checked;
+    const fields=F.filter((f,i)=>on[i]).map(f=>{ const i=F.indexOf(f); return `<div class="ff"><label for="f-${f[0]}">${f[1]}${req[i]?" *":""}</label><input id="f-${f[0]}" name="${f[0]}" type="${f[2]}" ${f[4]} ${req[i]?"required":""}></div>`; });
+    if(consent) fields.push(`<div class="ff"><label><input type="checkbox" name="dongy" required> Tôi đồng ý để Cửa hàng Mẫu sử dụng email, số điện thoại để gửi thông tin ưu đãi. Có thể hủy đăng ký bất cứ lúc nào.</label></div>`);
+    const html=`<form action="/dang-ky" method="post">\n${fields.map(x=>"  "+x).join("\n")}\n  <button type="submit">Nhận mã giảm giá</button>\n</form>`;
+    const f=el.querySelector("[data-f]"); f.innerHTML=fields.join("")+`<button class="btn" type="submit">Nhận mã giảm giá</button><p class="note" data-msg></p>`;
+    f.onsubmit=e=>{ e.preventDefault(); const bad=[...f.querySelectorAll("input")].filter(x=>!x.checkValidity()); f.querySelectorAll(".ff").forEach(x=>x.classList.remove("err")); bad.forEach(x=>x.closest(".ff").classList.add("err")); f.querySelector("[data-msg]").textContent=bad.length?`Còn ${bad.length} trường chưa hợp lệ: ${bad.map(x=>x.validationMessage).filter(Boolean).slice(0,2).join("; ")}`:"Biểu mẫu hợp lệ. Trên website thật, dữ liệu sẽ được gửi lên máy chủ và kiểm tra lại."; };
+    const n=on.filter(Boolean).length, nr=F.filter((x,i)=>on[i]&&req[i]).length;
+    el.querySelector("[data-st]").innerHTML=`<div class="stat hi"><span>Số trường hiển thị</span><b>${n}</b></div><div class="stat"><span>Trường bắt buộc</span><b>${nr}</b></div><div class="stat"><span>Ô đồng ý dữ liệu</span><b>${consent?"Có":"Không"}</b></div>`;
+    const tips=[]; if(n>4) tips.push("Biểu mẫu nhận ưu đãi chỉ nên hỏi thông tin cần dùng ngay; cân nhắc bỏ bớt trường."); if(on[5]||on[6]) tips.push("Nghề nghiệp, thu nhập là thông tin nhạy cảm với khách, ít liên quan tới việc gửi mã giảm giá."); if(!consent) tips.push("Thiếu ô đồng ý cho mục đích tiếp thị; cần bổ sung theo Luật Bảo vệ dữ liệu cá nhân 2025."); if(!on[1]&&!on[2]) tips.push("Cần ít nhất email hoặc số điện thoại để gửi mã.");
+    el.querySelector("[data-ins]").textContent=tips.length?tips.join(" "):"Biểu mẫu gọn, đủ thông tin và có xin đồng ý.";
+    el.querySelector("[data-code]").innerHTML=codeBox(html,"Mã HTML của biểu mẫu"); });
+}},
+L6:{m:6, title:"Thực hành JavaScript với danh sách sản phẩm", k:"javascript", render(el){
+  const tasks=[["Lọc sản phẩm có giá dưới 500.000 đồng","sp.filter(p => p.gia < 500000)",d=>d.filter(p=>p.gia<500000)],["Tạo mảng tên sản phẩm thuộc danh mục 'Túi'","sp.filter(p => p.dm === 'Túi').map(p => p.ten)",d=>d.filter(p=>p.dm==="Túi").map(p=>p.ten)],["Tính tổng giá tất cả sản phẩm","sp.reduce((tong, p) => tong + p.gia, 0)",d=>d.reduce((t,p)=>t+p.gia,0)],["Sắp xếp theo giá tăng dần, lấy tên 3 sản phẩm rẻ nhất","[...sp].sort((a, b) => a.gia - b.gia).slice(0, 3).map(p => p.ten)",d=>[...d].sort((a,b)=>a.gia-b.gia).slice(0,3).map(p=>p.ten)]];
+  el.innerHTML=`<p class="predict">Biến <code>sp</code> chứa ${PRODUCTS.length} sản phẩm (xem bên dưới). Viết một biểu thức JavaScript cho mỗi yêu cầu rồi bấm Chạy. Có thể dùng console.log để in thêm.</p>
+  <details class="code"><summary>Dữ liệu sp</summary><pre>${esc(JSON.stringify(PRODUCTS,null,1))}</pre></details>
+  ${tasks.map((t,i)=>`<div class="card" style="display:grid;gap:8px"><b>Bài ${i+1}. ${t[0]}</b><textarea id="l6t${i}" rows="2" class="mono" spellcheck="false" aria-label="Mã bài ${i+1}">sp</textarea><div class="row"><button class="btn" type="button" data-run="${i}">Chạy</button><button class="btn ghost" type="button" data-sol="${i}">Xem lời giải</button><span data-res="${i}"></span></div><pre class="out" data-out="${i}"></pre></div>`).join("")}`;
+  const same=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
+  el.querySelectorAll("[data-run]").forEach(b=>b.onclick=()=>{ const i=+b.dataset.run, code=$("#l6t"+i,el).value, logs=[]; const con={log:(...a)=>logs.push(a.map(x=>typeof x==="object"?JSON.stringify(x):String(x)).join(" "))}; let out, ok=false;
+    try{ const data=JSON.parse(JSON.stringify(PRODUCTS)); const r=new Function("sp","console",`"use strict"; return (${code}\n);`)(data,con); out=JSON.stringify(r,null,1); ok=same(r,tasks[i][2](PRODUCTS)); }catch(e){ out = (e instanceof EvalError || /unsafe-eval|Content Security/i.test(e.message)) ? "Trình duyệt đang chặn chạy mã trên trang này. Mở DevTools (F12) > Console, dán dữ liệu sp và chạy biểu thức. Kết quả đúng: "+JSON.stringify(tasks[i][2](PRODUCTS)) : "Lỗi: "+e.message; }
+    el.querySelector(`[data-out="${i}"]`).textContent=(logs.length?logs.join("\n")+"\n":"")+"→ "+out; el.querySelector(`[data-res="${i}"]`).innerHTML=ok?'<span class="badge ok">Đúng</span>':'<span class="badge bad">Chưa đúng</span>'; });
+  el.querySelectorAll("[data-sol]").forEach(b=>b.onclick=()=>{ const i=+b.dataset.sol; $("#l6t"+i,el).value=tasks[i][1]; });
+}},
+L7:{m:7, title:"Giỏ hàng và trạng thái ứng dụng", k:"gio-hang", render(el){
+  const st={items:{tote:2,vi:1},ma:""};
+  el.innerHTML=`<p class="predict">Quy tắc giả định: mã GIAM10 giảm 10% cho đơn từ 1.000.000 đồng; phí giao hàng 30.000 đồng, miễn phí khi tổng sau giảm từ 1.000.000 đồng. Thêm, bớt sản phẩm và quan sát trạng thái JSON thay đổi.</p>
+  <div class="grid2" style="grid-template-columns:1.1fr 1fr"><div style="display:grid;gap:10px"><div class="shop">${PRODUCTS.map(p=>`<div class="pcard"><div class="pimg"></div><b>${p.ten}</b><span>${nf(p.gia)} đ</span><button class="btn ghost" type="button" data-add="${p.id}">Thêm vào giỏ</button></div>`).join("")}</div></div>
+  <div style="display:grid;gap:10px;align-content:start"><div class="tbl" data-cart></div><div class="row"><input type="text" id="l7m" placeholder="Mã giảm giá" aria-label="Mã giảm giá" style="max-width:180px"><button class="btn blue" type="button" id="l7ap">Áp dụng</button><span class="note" data-mm></span></div><div class="stats" data-tot></div></div></div>
+  <h4>Trạng thái (state) dạng JSON</h4><pre class="out" data-js></pre>
+  ${codeBox("// Lấy danh sách sản phẩm từ máy chủ\nasync function taiSanPham() {\n  try {\n    const res = await fetch('/api/san-pham');\n    if (!res.ok) throw new Error('Lỗi ' + res.status);\n    return await res.json();\n  } catch (err) {\n    console.error(err);\n    return [];\n  }\n}\n// Lưu giỏ hàng vào trình duyệt\nlocalStorage.setItem('gioHang', JSON.stringify(state));\nconst daLuu = JSON.parse(localStorage.getItem('gioHang') || '{\"items\":{}}');","Mã tham khảo: fetch và localStorage")}`;
+  const draw=()=>{ const rows=Object.entries(st.items).filter(([k,v])=>v>0).map(([k,v])=>({p:PRODUCTS.find(x=>x.id===k),v}));
+    const sub=rows.reduce((s,r)=>s+r.p.gia*r.v,0), disc=st.ma==="GIAM10"&&sub>=1000000?sub*0.1:0, after=sub-disc, ship=rows.length?(after>=1000000?0:30000):0;
+    el.querySelector("[data-cart]").innerHTML=rows.length?`<table><thead><tr><th>Sản phẩm</th><th class="r">SL</th><th class="r">Thành tiền</th></tr></thead><tbody>${rows.map(r=>`<tr><td>${r.p.ten}</td><td class="r"><span class="seg" style="display:inline-flex"><button type="button" data-dec="${r.p.id}" aria-label="Giảm">−</button><button type="button" disabled>${r.v}</button><button type="button" data-inc="${r.p.id}" aria-label="Tăng">+</button></span></td><td class="r num">${nf(r.p.gia*r.v)} đ</td></tr>`).join("")}</tbody></table>`:'<p class="note">Giỏ hàng trống.</p>';
+    el.querySelector("[data-tot]").innerHTML=[["Tạm tính",sub],["Giảm giá",disc?-disc:0],["Phí giao hàng",ship]].map(s=>`<div class="stat"><span>${s[0]}</span><b>${nf(s[1])} đ</b></div>`).join("")+`<div class="stat hi"><span>Tổng thanh toán</span><b>${nf(after+ship)} đ</b></div>`;
+    el.querySelector("[data-js]").textContent=JSON.stringify({items:rows.map(r=>({id:r.p.id,gia:r.p.gia,sl:r.v})),ma:st.ma||null,tamTinh:sub,giam:disc,phiGiao:ship,tong:after+ship},null,2);
+    el.querySelector("[data-mm]").textContent=st.ma?(st.ma==="GIAM10"?(disc?"Đã áp dụng GIAM10.":"GIAM10 cần đơn từ 1.000.000 đồng."):"Mã không hợp lệ."):""; };
+  el.addEventListener("click",e=>{ const b=e.target.closest("button"); if(!b) return; if(b.dataset.add){ st.items[b.dataset.add]=(st.items[b.dataset.add]||0)+1; draw(); } if(b.dataset.inc){ st.items[b.dataset.inc]++; draw(); } if(b.dataset.dec){ st.items[b.dataset.dec]--; draw(); } });
+  $("#l7ap",el).onclick=()=>{ st.ma=$("#l7m",el).value.trim().toUpperCase(); draw(); }; draw();
+}},
+L8:{m:8, title:"Kiểm định thử nghiệm A/B và đánh giá trang đích", k:"ab-test", render(el){
+  const ck=["Tiêu đề nêu rõ lợi ích cho khách hàng","Chỉ một lời kêu gọi hành động chính, nổi bật","Nút kêu gọi hành động thấy được ngay trên màn hình điện thoại","Ảnh sản phẩm thật, có alt","Có bằng chứng tin cậy: đánh giá thật, chính sách đổi trả, thông tin liên hệ","Biểu mẫu ngắn, có nhãn rõ ràng","Tương phản chữ và nền đạt tối thiểu 4,5:1","Thao tác được bằng bàn phím, thấy rõ vị trí đang chọn (focus)","Không dùng màu là tín hiệu duy nhất (ví dụ báo lỗi)","Trang tải nhanh trên di động (LCP ≤ 2,5 giây)"];
+  el.innerHTML=`<p class="predict">Dự đoán trước: với số liệu mặc định, phiên bản B có thực sự tốt hơn A không?</p>
+  <div class="ctrls">${slider("l8na","Lượt truy cập A",100,20000,100,4000)}${slider("l8ca","Chuyển đổi A",0,2000,1,120)}${slider("l8nb","Lượt truy cập B",100,20000,100,4000)}${slider("l8cb","Chuyển đổi B",0,2000,1,156)}</div>
+  <div class="stats" data-st></div><div class="callout or" data-ins></div>
+  <h4>Cỡ mẫu cần thiết cho mỗi phiên bản</h4>
+  <div class="ctrls">${slider("l8p","Tỷ lệ chuyển đổi hiện tại",0.5,10,0.1,3,"pct")}${slider("l8u","Mức tăng tương đối muốn phát hiện",5,50,1,20,"pct")}</div>
+  <div class="stats" data-ss></div>
+  <h4>Danh mục đánh giá trang đích</h4><div class="sortq">${ck.map((c,i)=>`<label class="it"><span><input type="checkbox" id="l8k${i}"> ${c}</span><span></span></label>`).join("")}</div><div class="stats" data-ck></div>
+  <p class="note">Kiểm định z hai tỷ lệ, mức ý nghĩa 5%, hai phía; cỡ mẫu tính với độ mạnh kiểm định 80%.</p>`;
+  bindSliders(el,()=>{ const na=val(el,"l8na"),ca=Math.min(val(el,"l8ca"),na),nb=val(el,"l8nb"),cb=Math.min(val(el,"l8cb"),nb);
+    const pa=ca/na,pb=cb/nb,p=(ca+cb)/(na+nb),se=Math.sqrt(p*(1-p)*(1/na+1/nb)),z=se?(pb-pa)/se:0,pv=2*(1-normCdf(Math.abs(z)));
+    el.querySelector("[data-st]").innerHTML=[["Tỷ lệ A",pct(pa,2)],["Tỷ lệ B",pct(pb,2)],["Mức tăng tương đối",pa?pct((pb-pa)/pa,1):"–"],["z",nf(z,2)]].map(s=>`<div class="stat"><span>${s[0]}</span><b>${s[1]}</b></div>`).join("")+`<div class="stat hi"><span>Giá trị p</span><b>${nf(pv,3)}</b></div>`;
+    el.querySelector("[data-ins]").innerHTML=pv<0.05?`<span class="badge ok">Có ý nghĩa thống kê</span> Phiên bản ${pb>pa?"B":"A"} tốt hơn ở mức ý nghĩa 5%.`:`<span class="badge warn">Chưa đủ bằng chứng</span> Chênh lệch có thể do ngẫu nhiên; tiếp tục thu thập dữ liệu đến đủ cỡ mẫu đã tính trước, không dừng sớm khi thấy kết quả đẹp.`;
+    const p1=val(el,"l8p")/100,p2=p1*(1+val(el,"l8u")/100),n=Math.ceil((1.96+0.8416)**2*(p1*(1-p1)+p2*(1-p2))/(p2-p1)**2);
+    el.querySelector("[data-ss]").innerHTML=`<div class="stat"><span>Tỷ lệ mục tiêu</span><b>${pct(p2,2)}</b></div><div class="stat hi"><span>Lượt truy cập mỗi phiên bản</span><b>${nf(n)}</b></div><div class="stat"><span>Tổng lượt truy cập</span><b>${nf(2*n)}</b></div>`;
+    const k=ck.filter((c,i)=>$("#l8k"+i,el).checked).length; el.querySelector("[data-ck]").innerHTML=`<div class="stat hi"><span>Điểm trang đích</span><b>${k}/10</b></div><div class="stat"><span>Đánh giá</span><b><span class="badge ${k>=8?"ok":k>=5?"warn":"bad"}">${k>=8?"Tốt":k>=5?"Cần cải thiện":"Chưa đạt"}</span></b></div>`; });
+}},
+L9:{m:9, title:"Xem trước kết quả tìm kiếm và Core Web Vitals", k:"seo", render(el){
+  el.innerHTML=`<div class="grid2" style="grid-template-columns:1fr 1fr"><div style="display:grid;gap:10px">
+   <div class="ctrl"><label for="l9n">Tên sản phẩm (tạo slug tự động)</label><input type="text" id="l9n" value="Túi Tote Da Bò Thủ Công Màu Nâu"></div>
+   <div class="ctrl"><label for="l9t">Thẻ title <b data-tc></b></label><input type="text" id="l9t" value="Túi tote da bò thủ công màu nâu | Cửa hàng Mẫu"></div>
+   <div class="ctrl"><label for="l9d">Meta description <b data-dc></b></label><textarea id="l9d" rows="3">Túi tote da bò thật, may thủ công, ngăn đựng laptop 14 inch. Bảo hành đường may 12 tháng, giao nhanh 2 giờ tại TP.HCM. Đặt hàng ngay.</textarea></div></div>
+   <div><h4>Bản xem trước trên kết quả tìm kiếm</h4><div class="serp" data-serp></div><ul class="checks" data-sc></ul></div></div>
+  <h4>Đánh giá Core Web Vitals</h4>
+  <div class="ctrls">${slider("l9l","LCP (giây)",0.5,8,0.1,3.4)}${slider("l9i","INP (ms)",50,800,10,180)}${slider("l9c","CLS",0,0.5,0.01,0.08)}</div>
+  <div class="stats" data-cwv></div><div class="callout or" data-ins></div>
+  ${codeBox('<script type="application/ld+json">\n{\n  "@context": "https://schema.org",\n  "@type": "Product",\n  "name": "Túi tote da bò thủ công màu nâu",\n  "image": "https://cuahangmau.vn/img/tui-tote.webp",\n  "offers": {\n    "@type": "Offer",\n    "price": "450000",\n    "priceCurrency": "VND",\n    "availability": "https://schema.org/InStock"\n  }\n}\n<\/script>',"Dữ liệu có cấu trúc schema.org/Product")}`;
+  bindSliders(el,()=>{ const t=$("#l9t",el).value, d=$("#l9d",el).value, slug=slugify($("#l9n",el).value);
+    const tl=[...t].length, dl=[...d].length; el.querySelector("[data-tc]").textContent=tl+" ký tự"; el.querySelector("[data-dc]").textContent=dl+" ký tự";
+    const cut=(s,n)=>[...s].length>n?[...s].slice(0,n).join("")+"…":s;
+    el.querySelector("[data-serp]").innerHTML=`<div class="su">cuahangmau.vn › ${esc(slug)}</div><div class="stt">${esc(cut(t,60))}</div><div class="sd">${esc(cut(d,160))}</div>`;
+    const C=[["Title 30–60 ký tự",tl>=30&&tl<=60],["Meta description 70–160 ký tự",dl>=70&&dl<=160],["Title chứa tên thương hiệu",/cửa hàng mẫu/i.test(t)],["Slug không dấu, ngắn (≤ 60 ký tự)",slug.length>0&&slug.length<=60],["Mô tả có lời kêu gọi hành động",/(đặt|mua|xem|nhận|đăng ký)/i.test(d)]];
+    el.querySelector("[data-sc]").innerHTML=C.map(c=>`<li><span class="badge ${c[1]?"ok":"bad"}">${c[1]?"Đạt":"Chưa đạt"}</span> ${c[0]}</li>`).join("")+`<li class="note">Slug: /${esc(slug)}</li>`;
+    const lv=(v,g,p)=>v<=g?["ok","Tốt"]:v<=p?["warn","Cần cải thiện"]:["bad","Kém"];
+    const L=val(el,"l9l"),I=val(el,"l9i"),S=val(el,"l9c"), a=lv(L,2.5,4), b=lv(I,200,500), c=lv(S,0.1,0.25);
+    el.querySelector("[data-cwv]").innerHTML=[["LCP",nf(L,1)+" s",a,"≤ 2,5 s"],["INP",I+" ms",b,"≤ 200 ms"],["CLS",nf(S,2),c,"≤ 0,1"]].map(x=>`<div class="stat"><span>${x[0]} (tốt khi ${x[3]})</span><b>${x[1]}</b> <span class="badge ${x[2][0]}">${x[2][1]}</span></div>`).join("");
+    const tips=[]; if(a[0]!=="ok") tips.push("LCP: nén ảnh chính, dùng WebP hoặc AVIF, đặt kích thước ảnh, ưu tiên tải ảnh đầu trang, dùng CDN."); if(b[0]!=="ok") tips.push("INP: giảm JavaScript chạy khi tương tác, chia nhỏ tác vụ dài, trì hoãn mã bên thứ ba."); if(c[0]!=="ok") tips.push("CLS: khai báo width, height cho ảnh và khung quảng cáo, tránh chèn nội dung phía trên nội dung đã hiển thị.");
+    el.querySelector("[data-ins]").textContent=tips.length?tips.join(" "):"Cả 3 chỉ số đạt ngưỡng tốt."; });
+}},
+L10:{m:10, title:"Mô phỏng lỗ hổng XSS, SQL injection và kiểm tra triển khai", k:"bao-mat", render(el){
+  const ck=["Toàn bộ trang chạy HTTPS, có chuyển hướng từ HTTP","Mật khẩu quản trị mạnh, bật xác thực hai yếu tố","Mã hóa đầu ra khi hiển thị nội dung người dùng","Truy vấn cơ sở dữ liệu dùng tham số hóa","Kiểm tra dữ liệu đầu vào ở máy chủ","Cập nhật phiên bản Node.js, thư viện, CMS","Sao lưu theo quy tắc 3-2-1 và đã thử khôi phục","Có môi trường thử nghiệm (staging) trước khi triển khai","Giám sát thời gian hoạt động và nhật ký lỗi","Có chính sách bảo vệ dữ liệu cá nhân công bố trên website"];
+  el.innerHTML=`<p class="predict">Nhập nội dung bình luận hoặc từ khóa tìm kiếm, kể cả nội dung độc hại, để thấy khác biệt giữa cách xử lý không an toàn và an toàn. Mô phỏng chạy trong khung cách ly, mã script không được thực thi.</p>
+  <h4>XSS: hiển thị bình luận của khách</h4>
+  <div class="ctrl"><label for="l10x">Bình luận</label><input type="text" id="l10x" class="mono" value='Túi đẹp! <b>Sẽ mua lại</b> <img src=x onerror="alert(1)">'></div>
+  <div class="grid2" style="grid-template-columns:1fr 1fr"><div><p class="note">Không an toàn: innerHTML</p><iframe class="pv sm" sandbox="" title="Hiển thị không an toàn" data-un></iframe></div><div><p class="note">An toàn: textContent</p><div class="pv sm safe" data-sf></div></div></div>
+  <div class="callout" data-xi></div>
+  <h4>SQL injection: ô tìm kiếm sản phẩm</h4>
+  <div class="ctrl"><label for="l10q">Từ khóa</label><input type="text" id="l10q" class="mono" value="túi' OR '1'='1"></div>
+  <pre class="out" data-sq></pre><div class="callout" data-qi></div>
+  <h4>Danh mục kiểm tra trước khi triển khai</h4><div class="sortq">${ck.map((c,i)=>`<label class="it"><span><input type="checkbox" id="l10k${i}"> ${c}</span><span></span></label>`).join("")}</div><div class="stats" data-ck></div>
+  ${codeBox("// Máy chủ Express tối giản với truy vấn tham số hóa (mysql2)\nconst express = require('express');\nconst mysql = require('mysql2/promise');\nconst app = express();\nconst db = mysql.createPool({ host: 'localhost', user: 'shop_read', database: 'cuahangmau' });\napp.get('/api/san-pham', async (req, res) => {\n  const q = String(req.query.q || '').slice(0, 50);\n  const [rows] = await db.query('SELECT id, ten, gia FROM san_pham WHERE ten LIKE ?', ['%' + q + '%']);\n  res.json(rows);\n});\napp.listen(3000);","Mã tham khảo Node.js, Express")}`;
+  bindSliders(el,()=>{ const x=$("#l10x",el).value; el.querySelector("[data-un]").srcdoc=`<body style="font:15px system-ui;margin:8px">${x}</body>`; el.querySelector("[data-sf]").textContent=x;
+    const danger=/<script|on\w+\s*=|javascript:/i.test(x);
+    el.querySelector("[data-xi]").innerHTML=danger?`<span class="badge bad">Phát hiện mã có thể thực thi</span> Trên website thật dùng innerHTML, đoạn mã này sẽ chạy trên trình duyệt của mọi khách xem bình luận (đánh cắp phiên đăng nhập, chuyển hướng lừa đảo). Cách an toàn hiển thị nguyên văn bản.`:`Nội dung không chứa mã thực thi. Thẻ HTML như &lt;b&gt; vẫn được trình duyệt diễn giải khi dùng innerHTML.`;
+    const q=$("#l10q",el).value; el.querySelector("[data-sq]").textContent=`Không an toàn (ghép chuỗi):\nSELECT * FROM san_pham WHERE ten LIKE '%${q}%'\n\nAn toàn (tham số hóa):\nSELECT * FROM san_pham WHERE ten LIKE ?\nTham số: ['%${q}%']`;
+    el.querySelector("[data-qi]").innerHTML=/'/.test(q)?`<span class="badge bad">Dấu nháy đơn làm thay đổi cấu trúc câu lệnh</span> Ở câu ghép chuỗi, phần sau dấu nháy được hiểu là lệnh SQL. Ở câu tham số hóa, toàn bộ từ khóa chỉ là dữ liệu.`:"Từ khóa không chứa ký tự đặc biệt. Vẫn luôn dùng truy vấn tham số hóa.";
+    const k=ck.filter((c,i)=>$("#l10k"+i,el).checked).length; el.querySelector("[data-ck]").innerHTML=`<div class="stat hi"><span>Mức sẵn sàng</span><b>${k}/10</b></div><div class="stat"><span>Đánh giá</span><b><span class="badge ${k>=9?"ok":k>=6?"warn":"bad"}">${k>=9?"Sẵn sàng triển khai":k>=6?"Cần bổ sung":"Chưa sẵn sàng"}</span></b></div>`; });
+}}
+};
+
+// ===== TRANG RIÊNG CỦA HỌC PHẦN =====
+V.home = () => `
+ <div class="grid2">
+  <div style="display:grid;gap:16px;align-content:start">
+   <h2 class="sec">Xây website bán hàng từ HTML đến vận hành</h2>
+   <p class="lead">Học phần trang bị kỹ năng xây dựng website kinh doanh: HTML ngữ nghĩa, CSS và bố cục đáp ứng, biểu mẫu, JavaScript và giỏ hàng, trải nghiệm người dùng, SEO, hiệu năng, bảo mật và triển khai. Người học xây dựng dần website cho <b>${CASE}</b> qua 10 module, làm nền cho học phần Phát triển web kinh doanh nâng cao (BIE5061).</p>
+   <div class="row"><a class="btn" href="#m1">Bắt đầu Module 1</a><a class="btn ghost" href="#labs">Xem 10 lab</a></div>
+  </div>
+  <div class="card"><h4 class="eyebrow" style="color:var(--muted)">Thông tin học phần</h4>
+   <dl class="kv" style="margin-top:10px"><dt>Mã học phần</dt><dd>BIE5030</dd><dt>Khối lượng</dt><dd>3 tín chỉ</dd><dt>Học trước</dt><dd>Tư duy lập trình (BIM3049)</dd><dt>Học tiếp theo</dt><dd>Phát triển web kinh doanh nâng cao (BIE5061)</dd><dt>Công cụ</dt><dd>Visual Studio Code, Chrome DevTools, Node.js</dd><dt>Đơn vị</dt><dd>Khoa Hệ thống thông tin</dd></dl></div>
+ </div>
+ <section style="display:grid;gap:14px"><h3>Cách học mỗi module</h3>
+  <div class="grid4">${[["Bước 1","Trước buổi học","Đọc chương giáo trình, cài đặt công cụ, xem trang mẫu bằng DevTools."],["Bước 2","Trên lớp","Lập trình đôi, sửa lỗi chung, đánh giá chéo và phiếu ra lớp."],["Bước 3","Thực hành","Dự đoán trước, làm lab ngay trên trang, mang mã sang dự án của nhóm."],["Bước 4","Tự đánh giá","Thảo luận tình huống, đánh dấu mục đã xong, tự chấm mức tự tin."]].map(s=>`<div class="card step"><b>${s[0]}</b><h4>${s[1]}</h4><p>${s[2]}</p></div>`).join("")}</div>
+ </section>
+ <section style="display:grid;gap:12px"><h3>Năng lực đạt được</h3><div class="pills">${["HTTP, URL, tên miền, hosting","HTML ngữ nghĩa","CSS và mô hình hộp","Flexbox, Grid, mobile first","Biểu mẫu và kiểm tra dữ liệu","JavaScript và DOM","JSON, Fetch API, giỏ hàng","Khả năng truy cập WCAG","Thử nghiệm A/B","SEO trên trang","Core Web Vitals","Phòng chống XSS, SQL injection"].map(s=>`<span class="pill">${s}</span>`).join("")}</div></section>
+ <section style="display:grid;gap:12px"><h3>Module</h3>${modRows()}</section>`;
+V.modules = () => `<h2 class="sec">Module</h2><p class="lead">10 module, mỗi module một tuần, bám theo giáo trình Connolly &amp; Hoar (2022) và Felke-Morris (2021). Mỗi module có 9 mục; dấu hoàn thành lưu trong trình duyệt của bạn.</p>${modRows()}`;
+V.labs = () => { const d=h("div",{class:"view"}); d.innerHTML=`<h2 class="sec">Lab tương tác</h2><p class="lead">10 lab thực hành ngay trên trang: soạn HTML xem kết quả tức thì, mô phỏng bố cục đáp ứng, chạy JavaScript, giỏ hàng, kiểm định A/B, SEO và bảo mật.</p><div class="pills">${Object.keys(LABS).map(k=>`<a class="pill" href="#m${LABS[k].m}-lab">${LABS[k].title}</a>`).join("")}</div>`; Object.keys(LABS).forEach(k=>d.appendChild(labBlock(k))); return d; };
+V.assessment = () => `<h2 class="sec">Đánh giá học phần</h2><p class="lead">Cơ cấu điểm theo khung các học phần chuyên ngành của Khoa Hệ thống thông tin: quá trình 30%, giữa kỳ 20%, cuối kỳ 50%. Thang điểm 10.</p>
+ <div class="tbl card"><table><thead><tr><th>Thành phần</th><th>Bài đánh giá</th><th>Hình thức</th><th class="r">Trọng số</th></tr></thead><tbody>
+ <tr><td rowspan="3">A1. Quá trình</td><td>A1.1 Bài thực hành theo module</td><td>Nộp kết quả lab và bài tập tại lớp</td><td rowspan="3" class="r">30%</td></tr>
+ <tr><td>A1.2 Trắc nghiệm</td><td>Kiểm tra kiến thức HTML, CSS, JavaScript, HTTP</td></tr>
+ <tr><td>A1.3 Chuyên cần, tham gia</td><td>Điểm danh, phiếu ra lớp, phát biểu</td></tr>
+ <tr><td>A2. Giữa kỳ</td><td>A2.1 Trang đích đáp ứng</td><td>Cá nhân xây dựng 1 trang đích HTML/CSS đáp ứng, có biểu mẫu (tuần 5)</td><td class="r">20%</td></tr>
+ <tr><td>A3. Cuối kỳ</td><td>A3.1 Đồ án website kinh doanh</td><td>Nhóm 3–5 sinh viên, báo cáo và trình bày (sau tuần 10)</td><td class="r">50%</td></tr></tbody></table></div>
+ <section class="card" style="display:grid;gap:10px"><h3>Đồ án nhóm A3.1: Website kinh doanh hoàn chỉnh</h3>
+ <ol style="margin:0;padding-left:22px;display:grid;gap:4px"><li>Phân tích mục tiêu kinh doanh, đối tượng khách hàng, sơ đồ trang và cấu trúc URL (Module 1).</li><li>Tối thiểu 5 trang: trang chủ, danh mục, sản phẩm, giỏ hàng, liên hệ/chính sách; HTML ngữ nghĩa, CSS đáp ứng (Module 2–4).</li><li>Biểu mẫu đặt hàng hoặc đăng ký có kiểm tra dữ liệu và xin đồng ý dữ liệu cá nhân (Module 5).</li><li>Lọc, sắp xếp sản phẩm và giỏ hàng bằng JavaScript, dữ liệu sản phẩm dạng JSON (Module 6–7).</li><li>Báo cáo đánh giá UX, khả năng truy cập, SEO và Core Web Vitals kèm minh chứng (Module 8–9).</li><li>Triển khai lên hosting có tên miền hoặc nền tảng miễn phí, danh mục kiểm tra bảo mật (Module 10).</li></ol></section>
+ <section style="display:grid;gap:10px"><h3>Rubric đồ án A3.1</h3>
+ <div class="tbl card"><table><thead><tr><th>Tiêu chí</th><th class="r">Tỷ trọng</th><th>Mức tốt (8,5–10)</th><th>Mức đạt (5–6,9)</th></tr></thead><tbody>
+ ${[["Phân tích và thiết kế","15%","Mục tiêu đo được, sơ đồ trang và URL rõ ràng, phù hợp khách hàng","Có mục tiêu chung, sơ đồ trang sơ sài"],["Giao diện HTML/CSS đáp ứng","25%","Ngữ nghĩa đúng, hiển thị tốt từ 360px đến 1440px, nhất quán thương hiệu","Hiển thị được trên máy tính, lỗi bố cục trên di động"],["Chức năng JavaScript","25%","Lọc, sắp xếp, giỏ hàng đúng mọi trường hợp; xử lý lỗi","Chức năng chạy được trường hợp cơ bản"],["UX, SEO, hiệu năng","20%","Đạt ≥ 8/10 danh mục trang đích; Core Web Vitals đạt ngưỡng tốt; SEO trên trang đầy đủ","Có đánh giá nhưng chưa khắc phục"],["Triển khai, bảo mật, trình bày","15%","Website hoạt động trên Internet, HTTPS, danh mục bảo mật ≥ 9/10, trình bày tốt","Chạy trên máy cá nhân, trình bày đủ ý"]].map(r=>`<tr><td>${r[0]}</td><td class="r">${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td></tr>`).join("")}</tbody></table></div></section>`;
+V.resources = () => `<h2 class="sec">Tài liệu học tập</h2>
+ <section class="card" style="display:grid;gap:8px"><h3>Giáo trình chính</h3><ul style="margin:0;padding-left:22px;display:grid;gap:6px"><li>Connolly, R., &amp; Hoar, R. (2022). <i>Fundamentals of web development</i> (3rd ed.). Pearson.</li></ul></section>
+ <section class="card" style="display:grid;gap:8px"><h3>Tài liệu tham khảo</h3><ul style="margin:0;padding-left:22px;display:grid;gap:6px"><li>Felke-Morris, T. A. (2021). <i>Web development and design foundations with HTML5</i> (10th ed.). Pearson.</li><li>Krug, S. (2014). <i>Don't make me think, revisited: A common sense approach to web usability</i> (3rd ed.). New Riders.</li><li>World Wide Web Consortium. (2023). <i>Web content accessibility guidelines (WCAG) 2.2</i>. <a href="https://www.w3.org/TR/WCAG22/" target="_blank" rel="noopener">w3.org/TR/WCAG22</a></li><li>OWASP Foundation. <i>OWASP Top Ten</i>. <a href="https://owasp.org/www-project-top-ten/" target="_blank" rel="noopener">owasp.org</a></li></ul></section>
+ <section class="card" style="display:grid;gap:8px"><h3>Tài liệu trực tuyến</h3><ul style="margin:0;padding-left:22px;display:grid;gap:6px"><li>MDN Web Docs (HTML, CSS, JavaScript, Web forms): <a href="https://developer.mozilla.org" target="_blank" rel="noopener">developer.mozilla.org</a></li><li>Core Web Vitals: <a href="https://web.dev/articles/vitals" target="_blank" rel="noopener">web.dev/articles/vitals</a></li><li>SEO Starter Guide: <a href="https://developers.google.com/search/docs/fundamentals/seo-starter-guide" target="_blank" rel="noopener">Google Search Central</a></li><li>Kiểm tra tốc độ trang: <a href="https://pagespeed.web.dev" target="_blank" rel="noopener">PageSpeed Insights</a></li></ul></section>
+ <section class="card" style="display:grid;gap:8px"><h3>Công cụ</h3><ul style="margin:0;padding-left:22px;display:grid;gap:6px"><li><a href="https://code.visualstudio.com" target="_blank" rel="noopener">Visual Studio Code</a></li><li><a href="https://nodejs.org" target="_blank" rel="noopener">Node.js</a> (bản LTS) và <a href="https://expressjs.com" target="_blank" rel="noopener">Express</a></li><li>Chrome DevTools (F12): Elements, Network, Lighthouse</li></ul></section>
+ <section class="callout">Tình huống ${CASE} và các quy tắc giá, mã giảm giá trong lab là giả định để thực hành.</section>`;
+start();
+</script>
+
+</html>

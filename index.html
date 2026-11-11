@@ -1,0 +1,748 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Hệ thống thực hành học phần Phát triển web kinh doanh (BIE5030), Trường Đại học Kinh tế - Luật, ĐHQG-HCM">
+<title>Thực hành Web BIE5030</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&family=Roboto+Mono:wght@400;500&display=swap">
+<style>
+/* Bố cục: thanh trên xanh UEL, cột trái danh mục bài (kiểu W3Schools), cột phải nội dung bài + vùng thực hành */
+:root{
+  --uel:#144e8c; --uel-d:#0f3d6e; --sky:#00aeef; --orange:#f05a23;
+  --bg:#f4f7fb; --surface:#ffffff; --surface-2:#e9f0f8; --line:#d3deeb;
+  --fg:#12263d; --muted:#51647b; --code-bg:#0f2238; --code-fg:#e3edf8;
+  --ok:#1b7f4c; --ok-bg:#e2f4ea; --bad:#b4261c; --bad-bg:#fbe7e5; --warn:#a85c06;
+  --f:"Roboto",system-ui,-apple-system,"Segoe UI",Arial,sans-serif; --m:"Roboto Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#0b1625;--surface:#112135;--surface-2:#182c46;--line:#25415f;--fg:#e5edf7;--muted:#9fb2c8;--uel:#1d63ad;--ok:#5fd398;--ok-bg:#12351f;--bad:#ff8a7e;--bad-bg:#3a1714;--warn:#f0a85a;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0b1625;--surface:#112135;--surface-2:#182c46;--line:#25415f;--fg:#e5edf7;--muted:#9fb2c8;--uel:#1d63ad;--ok:#5fd398;--ok-bg:#12351f;--bad:#ff8a7e;--bad-bg:#3a1714;--warn:#f0a85a;color-scheme:dark}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--f);font-size:16px;line-height:1.55}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--uel-d)}
+h1,h2,h3,h4{line-height:1.25;text-wrap:balance;margin:0}
+p{margin:0}
+button{font:inherit;cursor:pointer}
+a{color:var(--uel)}
+:focus-visible{outline:3px solid var(--sky);outline-offset:2px}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--uel-d);color:#fff;display:flex;align-items:center;gap:14px;padding-block:10px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.top .brand{font-weight:900;font-size:18px;letter-spacing:.01em}
+.top .brand span{color:#9ed8f5;font-weight:500}
+.top .sp{flex:1}
+.top .score{font-family:var(--m);font-size:14px;background:rgba(255,255,255,.12);border-radius:999px;padding:4px 12px}
+.top .menu-btn{display:none;background:transparent;color:#fff;border:1px solid rgba(255,255,255,.4);border-radius:6px;padding:4px 10px}
+.wrap[hidden]{display:none}.wrap{display:grid;grid-template-columns:280px minmax(0,1fr);min-height:calc(100% - 50px)}
+nav.side{background:var(--surface);border-right:1px solid var(--line);padding:14px 0 40px;position:sticky;top:50px;height:calc(100vh - 50px);overflow:auto}
+nav.side h4{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:14px 18px 6px}
+nav.side a{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:7px 18px;color:var(--fg);text-decoration:none;font-size:15px}
+nav.side a:hover{background:var(--surface-2)}
+nav.side a.on{background:var(--uel);color:#fff}
+nav.side a .c{font-family:var(--m);font-size:12px;color:var(--muted)}
+nav.side a.on .c{color:#d6e6f5}
+main{min-width:0;padding-block:28px 80px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.page{max-width:920px;margin:0 auto;display:grid;gap:22px}
+.eyebrow{font-size:12.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.page h1{font-size:34px;font-weight:900}
+.page h2{font-size:24px;font-weight:700;margin-top:6px}
+.page h3{font-size:19px}
+.lead{font-size:18px;color:var(--muted)}
+.prose{display:grid;gap:10px}
+.prose ul,.prose ol{margin:0;padding-left:22px;display:grid;gap:5px}
+code{font-family:var(--m);font-size:.92em;background:var(--surface-2);padding:1px 5px;border-radius:4px}
+.ex{background:var(--surface);border:1px solid var(--line);border-left:6px solid var(--uel);border-radius:8px;padding:14px 16px;display:grid;gap:10px}
+.ex .lbl{font-size:13px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+pre.code{margin:0;background:var(--code-bg);color:var(--code-fg);border-radius:8px;padding:14px 16px;overflow-x:auto;font-family:var(--m);font-size:13.5px;line-height:1.55;white-space:pre}
+.btn{display:inline-block;text-decoration:none;background:var(--uel);color:#fff;border:0;border-radius:6px;padding:9px 16px;font-weight:700}
+.btn.or{background:var(--orange)}
+.btn.gh{background:transparent;color:var(--fg);border:1px solid var(--line)}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.tryit{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+textarea.ed{width:100%;min-height:280px;resize:vertical;font-family:var(--m);font-size:13.5px;line-height:1.5;background:var(--code-bg);color:var(--code-fg);border:1px solid var(--line);border-radius:8px;padding:12px;tab-size:2}
+iframe.pv{width:100%;min-height:280px;border:1px solid var(--line);border-radius:8px;background:#ffffff}
+pre.out{margin:0;background:var(--surface-2);border-radius:8px;padding:10px 12px;font-family:var(--m);font-size:13px;white-space:pre-wrap;max-height:200px;overflow:auto;min-height:2.4em}
+.bt{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px;display:grid;gap:12px}
+.bt-h{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;align-items:baseline}
+.bt-h b{font-size:18px}
+.tag{font-family:var(--m);font-size:12px;border-radius:999px;padding:2px 9px;background:var(--surface-2);color:var(--muted)}
+.badge{display:inline-block;font-size:12.5px;font-weight:700;border-radius:999px;padding:2px 9px}
+.badge.ok{background:var(--ok-bg);color:var(--ok)}.badge.no{background:var(--surface-2);color:var(--muted)}.badge.bad{background:var(--bad-bg);color:var(--bad)}
+.fill{background:var(--code-bg);color:var(--code-fg);border-radius:8px;padding:14px 16px;font-family:var(--m);font-size:14px;line-height:2.1;white-space:pre-wrap;overflow-x:auto}
+.fill input{font-family:var(--m);font-size:14px;background:#fff3c4;color:#1b1b1b;border:0;border-radius:3px;padding:1px 4px;width:8.5ch}
+.fill input.ok{background:#c9f0d6}.fill input.bad{background:#ffd1cc}
+.tests{list-style:none;margin:0;padding:0;display:grid;gap:4px;font-size:14.5px}
+.tests li::before{content:"";display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:8px;background:var(--line)}
+.tests li.ok::before{background:var(--ok)}.tests li.bad::before{background:var(--bad)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px;display:grid;gap:12px}
+.form{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.form label{display:grid;gap:4px;font-size:14px;color:var(--muted)}
+.form input,.inp{font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);width:100%}
+table{border-collapse:collapse;width:100%;font-size:14.5px}
+th,td{border-bottom:1px solid var(--line);padding:7px 9px;text-align:left;vertical-align:top}
+th{color:var(--muted);font-size:12.5px;text-transform:uppercase;letter-spacing:.05em}
+td.r,th.r{text-align:right}
+.tbl{overflow-x:auto}
+.big{font-size:44px;font-weight:900;font-family:var(--m);color:var(--uel)}
+:root:not([data-theme="light"]) .big{color:var(--fg)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}
+.stat{background:var(--surface-2);border-radius:8px;padding:12px}
+.stat span{display:block;font-size:13px;color:var(--muted)}
+.stat b{font-family:var(--m);font-size:22px}
+.note{font-size:13.5px;color:var(--muted)}
+.callout{background:var(--surface-2);border-left:4px solid var(--sky);border-radius:0 8px 8px 0;padding:12px 14px;font-size:15px}
+.callout.or{border-left-color:var(--orange)}
+.pager{display:flex;justify-content:space-between;gap:10px;border-top:1px solid var(--line);padding-top:16px}
+.tabs{display:flex;gap:4px}.tabs a{color:#fff;text-decoration:none;font-weight:700;font-size:15px;padding:6px 12px;border-radius:6px}.tabs a:hover{background:rgba(255,255,255,.12)}.tabs a.on{background:rgba(255,255,255,.2);box-shadow:inset 0 -3px 0 var(--orange)}
+#bgWrap{height:calc(100vh - 50px)}#bgFrame{display:block;width:100%;height:100%;border:0;background:var(--bg)}
+body.bg .menu-btn,body.bg .score{display:none!important}
+@media (max-width:600px){.top .brand{display:none}.tabs a{padding:6px 8px;font-size:14px;white-space:nowrap}.top .score{display:none}}
+@media (max-width:900px){
+  .wrap{grid-template-columns:1fr}
+  nav.side{position:fixed;left:0;top:50px;width:280px;z-index:25;transform:translateX(-105%);transition:transform .2s;box-shadow:0 8px 24px rgba(0,0,0,.2)}
+  nav.side.open{transform:none}
+  .top .menu-btn{display:inline-block}
+  .tryit{grid-template-columns:1fr}
+  .form{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<header class="top"><button class="menu-btn" id="menuBtn" type="button" aria-label="Mở danh mục bài">☰</button><div class="brand">Thực hành Web <span>BIE5030</span></div><nav class="tabs" aria-label="Phân hệ"><a href="#bai-giang" id="tabBG">Bài giảng</a><a href="#gioi-thieu" id="tabTH">Thực hành</a></nav><div class="sp"></div><div class="score" id="topScore">0/10 điểm</div></header>
+<div class="wrap" id="thWrap"><nav class="side" id="side" aria-label="Danh mục bài học"></nav><main><div class="page" id="page"></div></main></div>
+<div id="bgWrap" hidden><iframe id="bgFrame" title="Bài giảng học phần Phát triển web kinh doanh BIE5030"></iframe></div>
+<script>
+// ===== NỘI DUNG BÀI HỌC VÀ BÀI TẬP =====
+const U = s => s.replace(/<\\\//g, "</").replace(/^\n/, "");
+const CHAPTERS = [
+  {id:"html", t:"Chương III · HTML"},
+  {id:"css", t:"Chương IV · CSS"},
+  {id:"js", t:"Chương V · JavaScript"},
+  {id:"dom", t:"Chương VI · DOM, XML, JSON"}
+];
+const LESSONS = [
+{id:"html-cau-truc", ch:"html", t:"Cấu trúc tài liệu HTML",
+ body:`<p>HTML (HyperText Markup Language) mô tả cấu trúc nội dung của trang web bằng các thẻ. Trình duyệt đọc các thẻ này và hiển thị thành trang.</p>
+ <p>Một tài liệu HTML5 chuẩn gồm:</p>
+ <ul><li><code>&lt;!DOCTYPE html&gt;</code>: khai báo tài liệu dùng HTML5, đặt ở dòng đầu tiên.</li><li><code>&lt;html lang="vi"&gt;</code>: phần tử gốc, thuộc tính <code>lang</code> cho biết ngôn ngữ của trang.</li><li><code>&lt;head&gt;</code>: thông tin về trang, không hiển thị trực tiếp: bảng mã (<code>meta charset</code>), cách hiển thị trên điện thoại (<code>meta viewport</code>), tiêu đề tab (<code>title</code>).</li><li><code>&lt;body&gt;</code>: toàn bộ nội dung người dùng nhìn thấy.</li></ul>`,
+ ex:String.raw`
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cửa hàng Mẫu</title>
+</head>
+<body>
+  <h1>Chào mừng đến Cửa hàng Mẫu</h1>
+  <p>Túi xách da thủ công.</p>
+</body>
+</html>`, exk:"html", bts:["BT01"]},
+{id:"html-tieu-de", ch:"html", t:"Tiêu đề, đoạn văn, định dạng",
+ body:`<p>HTML có 6 cấp tiêu đề từ <code>&lt;h1&gt;</code> (quan trọng nhất) đến <code>&lt;h6&gt;</code>. Mỗi trang nên có một <code>&lt;h1&gt;</code> nêu nội dung chính; các cấp sau dùng theo thứ bậc, không chọn cấp tiêu đề chỉ vì cỡ chữ.</p>
+ <p>Đoạn văn đặt trong <code>&lt;p&gt;</code>. Thẻ <code>&lt;strong&gt;</code> đánh dấu nội dung quan trọng (hiển thị đậm), <code>&lt;em&gt;</code> đánh dấu nhấn mạnh (hiển thị nghiêng), <code>&lt;br&gt;</code> xuống dòng trong cùng đoạn.</p>`,
+ ex:String.raw`
+<h1>Túi tote da bò</h1>
+<h2>Mô tả sản phẩm</h2>
+<p>Túi may thủ công từ <strong>da bò thật</strong>, đựng vừa laptop 14 inch.</p>
+<p>Bảo hành đường may <em>12 tháng</em>.<br>Giao nhanh 2 giờ tại TP.HCM.</p>`, exk:"html", bts:["BT02"]},
+{id:"html-lien-ket", ch:"html", t:"Liên kết và hình ảnh",
+ body:`<p>Thẻ <code>&lt;a&gt;</code> tạo liên kết; thuộc tính <code>href</code> chứa địa chỉ đích. Thêm <code>target="_blank"</code> để mở ở thẻ mới. Văn bản liên kết cần rõ nghĩa, ví dụ "Xem chính sách đổi trả", không dùng "bấm vào đây".</p>
+ <p>Thẻ <code>&lt;img&gt;</code> chèn hình ảnh với <code>src</code> là đường dẫn ảnh và <code>alt</code> là văn bản thay thế. <code>alt</code> giúp trình đọc màn hình mô tả ảnh cho người khiếm thị và hiển thị khi ảnh không tải được; công cụ tìm kiếm cũng đọc thuộc tính này.</p>
+ <p>Nhóm liên kết điều hướng chính đặt trong thẻ <code>&lt;nav&gt;</code>.</p>`,
+ ex:String.raw`
+<nav>
+  <a href="/">Trang chủ</a> |
+  <a href="/san-pham">Sản phẩm</a> |
+  <a href="https://uel.edu.vn" target="_blank">Website UEL</a>
+</nav>
+<img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='160'%3E%3Crect width='240' height='160' fill='%23c9a27a'/%3E%3Ctext x='120' y='86' font-size='20' text-anchor='middle' fill='%23ffffff' font-family='Arial'%3ETui xach%3C/text%3E%3C/svg%3E" alt="Túi xách da bò màu nâu" width="240">`, exk:"html", bts:["BT03","BT04"]},
+{id:"html-bang", ch:"html", t:"Danh sách và bảng",
+ body:`<p>Danh sách không thứ tự dùng <code>&lt;ul&gt;</code>, danh sách có thứ tự dùng <code>&lt;ol&gt;</code>; mỗi mục là một <code>&lt;li&gt;</code>.</p>
+ <p>Bảng dùng <code>&lt;table&gt;</code>. Mỗi hàng là <code>&lt;tr&gt;</code>; ô tiêu đề cột là <code>&lt;th&gt;</code>, ô dữ liệu là <code>&lt;td&gt;</code>. Nên chia bảng thành <code>&lt;thead&gt;</code> và <code>&lt;tbody&gt;</code>, thêm <code>&lt;caption&gt;</code> để mô tả bảng. Chỉ dùng bảng cho dữ liệu dạng bảng, không dùng để dàn trang.</p>`,
+ ex:String.raw`
+<ul>
+  <li>Túi tote</li>
+  <li>Ví da</li>
+</ul>
+<table border="1">
+  <caption>Bảng giá tháng 11</caption>
+  <thead><tr><th>Sản phẩm</th><th>Giá (đồng)</th></tr></thead>
+  <tbody>
+    <tr><td>Túi tote</td><td>450.000</td></tr>
+    <tr><td>Ví da</td><td>320.000</td></tr>
+  </tbody>
+</table>`, exk:"html", bts:["BT05"]},
+{id:"html-form", ch:"html", t:"Biểu mẫu",
+ body:`<p>Biểu mẫu <code>&lt;form&gt;</code> thu thập dữ liệu người dùng: đăng ký, đặt hàng, liên hệ. Mỗi ô nhập <code>&lt;input&gt;</code> cần một <code>&lt;label&gt;</code> có thuộc tính <code>for</code> trùng với <code>id</code> của ô nhập.</p>
+ <p>Chọn đúng <code>type</code> để trình duyệt hỗ trợ kiểm tra và hiện bàn phím phù hợp: <code>text</code>, <code>email</code>, <code>tel</code>, <code>number</code>, <code>date</code>, <code>password</code>, <code>checkbox</code>. Thuộc tính <code>required</code> bắt buộc nhập; <code>pattern</code> kiểm tra theo biểu thức chính quy. Nút gửi là <code>&lt;button type="submit"&gt;</code>.</p>
+ <p>Kiểm tra phía trình duyệt chỉ để phản hồi nhanh; máy chủ vẫn phải kiểm tra lại dữ liệu.</p>`,
+ ex:String.raw`
+<form>
+  <label for="ten">Họ và tên</label>
+  <input id="ten" name="ten" type="text" required>
+  <label for="sdt">Số điện thoại</label>
+  <input id="sdt" name="sdt" type="tel" pattern="0[0-9]{9}">
+  <button type="submit">Gửi</button>
+</form>`, exk:"html", bts:["BT06","BT07"]},
+{id:"css-cu-phap", ch:"css", t:"Cú pháp CSS và bộ chọn",
+ body:`<p>CSS (Cascading Style Sheets) định dạng cách hiển thị các phần tử HTML. Một quy tắc gồm bộ chọn và khối khai báo: <code>bộ-chọn { thuộc-tính: giá-trị; }</code>.</p>
+ <ul><li>Bộ chọn thẻ: <code>p</code> chọn mọi đoạn văn.</li><li>Bộ chọn lớp: <code>.gia</code> chọn phần tử có <code>class="gia"</code>, dùng lại được cho nhiều phần tử.</li><li>Bộ chọn id: <code>#menu</code> chọn phần tử có <code>id="menu"</code>, mỗi id chỉ xuất hiện một lần trên trang.</li></ul>
+ <p>Có ba cách đưa CSS vào trang: thuộc tính <code>style</code> trên thẻ (inline), thẻ <code>&lt;style&gt;</code> trong <code>head</code> (internal), tệp riêng nạp bằng <code>&lt;link rel="stylesheet"&gt;</code> (external). Dự án thật nên dùng tệp riêng.</p>`,
+ ex:String.raw`
+<style>
+  p { color: #333333; }
+  .gia { color: #f05a23; font-weight: bold; }
+  #menu { background: #144e8c; color: white; padding: 8px; }
+<\/style>
+<div id="menu">Cửa hàng Mẫu</div>
+<p>Túi tote da bò</p>
+<p class="gia">450.000 đồng</p>`, exk:"html", bts:["BT08"]},
+{id:"css-mau-chu", ch:"css", t:"Màu sắc, chữ và nền",
+ body:`<p>Màu được viết bằng tên (<code>red</code>), mã hex (<code>#144e8c</code>) hoặc <code>rgb(20, 78, 140)</code>. Thuộc tính <code>color</code> đặt màu chữ, <code>background-color</code> đặt màu nền.</p>
+ <p>Chữ: <code>font-family</code> (nên khai báo kèm phông dự phòng, ví dụ <code>Arial, sans-serif</code>), <code>font-size</code>, <code>font-weight</code>, <code>line-height</code>, <code>text-align</code>.</p>
+ <p>Chữ thường cần độ tương phản với nền tối thiểu 4,5:1 theo WCAG để dễ đọc.</p>`,
+ ex:String.raw`
+<style>
+  body { font-family: Arial, sans-serif; background-color: #f4f7fb; }
+  h1 { color: #144e8c; text-align: center; }
+  .khuyen-mai { background-color: #f05a23; color: white; padding: 6px 10px; }
+<\/style>
+<h1>Cửa hàng Mẫu</h1>
+<p><span class="khuyen-mai">Giảm 10%</span> cho đơn từ 1.000.000 đồng</p>`, exk:"html", bts:["BT09"]},
+{id:"css-box", ch:"css", t:"Mô hình hộp",
+ body:`<p>Mỗi phần tử là một hộp gồm 4 lớp từ trong ra ngoài: nội dung (content), vùng đệm (<code>padding</code>), viền (<code>border</code>), lề ngoài (<code>margin</code>).</p>
+ <p>Mặc định (<code>box-sizing: content-box</code>), <code>width</code> chỉ tính phần nội dung, nên chiều rộng hiển thị = width + padding hai bên + border hai bên. Với <code>box-sizing: border-box</code>, <code>width</code> đã gồm padding và border, giúp tính bố cục dễ hơn.</p>`,
+ ex:String.raw`
+<style>
+  .the { width: 240px; padding: 16px; border: 2px solid #144e8c; margin: 12px; }
+  .bb { box-sizing: border-box; }
+<\/style>
+<div class="the">content-box: rộng 240 + 32 + 4 = 276px</div>
+<div class="the bb">border-box: rộng đúng 240px</div>`, exk:"html", bts:["BT10"]},
+{id:"css-flex", ch:"css", t:"Flexbox",
+ body:`<p>Flexbox sắp xếp các phần tử con theo một hàng hoặc một cột. Đặt <code>display: flex</code> cho phần tử cha, sau đó điều chỉnh:</p>
+ <ul><li><code>flex-direction</code>: <code>row</code> (mặc định) hoặc <code>column</code>.</li><li><code>justify-content</code>: căn theo trục chính: <code>flex-start</code>, <code>center</code>, <code>space-between</code>.</li><li><code>align-items</code>: căn theo trục phụ.</li><li><code>gap</code>: khoảng cách giữa các phần tử con.</li><li><code>flex-wrap: wrap</code>: cho phép xuống dòng khi hết chỗ.</li></ul>`,
+ ex:String.raw`
+<style>
+  .menu { display: flex; justify-content: space-between; gap: 12px; background: #144e8c; padding: 10px; }
+  .menu a { color: white; text-decoration: none; }
+<\/style>
+<nav class="menu">
+  <a href="#">Cửa hàng Mẫu</a>
+  <a href="#">Sản phẩm</a>
+  <a href="#">Giỏ hàng</a>
+</nav>`, exk:"html", bts:["BT11"]},
+{id:"css-responsive", ch:"css", t:"Thiết kế đáp ứng",
+ body:`<p>Trang đáp ứng (responsive) hiển thị tốt trên mọi kích thước màn hình. Ba thành phần chính:</p>
+ <ol><li>Thẻ <code>&lt;meta name="viewport" content="width=device-width, initial-scale=1"&gt;</code>.</li><li>Bố cục linh hoạt bằng Flexbox hoặc Grid, đơn vị tương đối.</li><li>Media query: áp dụng CSS khi màn hình thỏa điều kiện, ví dụ <code>@media (min-width: 600px) { ... }</code>.</li></ol>
+ <p>Nguyên tắc ưu tiên di động (mobile first): viết CSS cho màn hình nhỏ trước, sau đó bổ sung bằng <code>min-width</code> cho màn hình lớn hơn. Kéo rộng, thu hẹp khung kết quả để thấy bố cục thay đổi.</p>`,
+ ex:String.raw`
+<style>
+  .luoi { display: grid; grid-template-columns: 1fr; gap: 10px; }
+  .luoi div { background: #00aeef; color: white; padding: 20px; }
+  @media (min-width: 500px) {
+    .luoi { grid-template-columns: 1fr 1fr 1fr; }
+  }
+<\/style>
+<div class="luoi"><div>Túi tote</div><div>Ví da</div><div>Balo mini</div></div>`, exk:"html", bts:["BT12"]},
+{id:"js-bien", ch:"js", t:"Biến và kiểu dữ liệu",
+ body:`<p>JavaScript là ngôn ngữ lập trình chạy trên trình duyệt, giúp trang web tương tác. Mã đặt trong thẻ <code>&lt;script&gt;</code> hoặc tệp <code>.js</code> riêng.</p>
+ <p>Khai báo biến bằng <code>let</code> (giá trị thay đổi được) hoặc <code>const</code> (không gán lại được). Không dùng <code>var</code> trong mã mới. Các kiểu dữ liệu thường gặp: số (<code>number</code>), chuỗi (<code>string</code>), đúng/sai (<code>boolean</code>), mảng, đối tượng. Toán tử <code>typeof</code> cho biết kiểu của giá trị.</p>
+ <p><code>console.log()</code> in giá trị ra cửa sổ kết quả, dùng để kiểm tra chương trình.</p>`,
+ ex:String.raw`
+const tenSanPham = "Túi tote";
+let soLuong = 2;
+const gia = 450000;
+soLuong = soLuong + 1;
+console.log(tenSanPham, soLuong, gia * soLuong);
+console.log(typeof gia, typeof tenSanPham);`, exk:"js", bts:["BT13"]},
+{id:"js-dieu-kien", ch:"js", t:"Điều kiện, vòng lặp và hàm",
+ body:`<p>Câu lệnh <code>if ... else</code> chọn nhánh xử lý theo điều kiện. Các toán tử so sánh: <code>===</code>, <code>!==</code>, <code>&gt;</code>, <code>&gt;=</code>, <code>&lt;</code>, <code>&lt;=</code>; kết hợp điều kiện bằng <code>&amp;&amp;</code> (và), <code>||</code> (hoặc).</p>
+ <p>Vòng lặp <code>for</code> lặp lại khối lệnh theo số lần xác định; <code>for...of</code> duyệt từng phần tử của mảng.</p>
+ <p>Hàm đóng gói một xử lý để dùng lại: <code>function ten(thamSo) { return ketQua; }</code>. Hàm nhận dữ liệu qua tham số và trả kết quả bằng <code>return</code>.</p>`,
+ ex:String.raw`
+function xepLoaiDon(tong) {
+  if (tong >= 1000000) {
+    return "Đơn lớn";
+  } else {
+    return "Đơn thường";
+  }
+}
+for (let i = 1; i <= 3; i++) {
+  console.log("Đơn " + i + ": " + xepLoaiDon(i * 400000));
+}`, exk:"js", bts:["BT14","BT15"]},
+{id:"js-mang", ch:"js", t:"Mảng và đối tượng",
+ body:`<p>Đối tượng gom các thuộc tính của một thực thể: <code>{ ten: "Ví da", gia: 320000 }</code>; truy cập bằng <code>sp.ten</code>. Mảng là danh sách có thứ tự: <code>[sp1, sp2]</code>; <code>.length</code> cho số phần tử.</p>
+ <p>Các phương thức mảng thường dùng trong website bán hàng:</p>
+ <ul><li><code>filter</code>: lọc phần tử thỏa điều kiện (lọc theo giá, danh mục).</li><li><code>map</code>: biến đổi từng phần tử (lấy danh sách tên).</li><li><code>reduce</code>: gộp thành một giá trị (tính tổng tiền giỏ hàng).</li><li><code>sort</code>: sắp xếp (giá tăng dần).</li></ul>`,
+ ex:String.raw`
+const ds = [
+  { ten: "Túi tote", gia: 450000 },
+  { ten: "Ví da", gia: 320000 },
+  { ten: "Balo mini", gia: 980000 }
+];
+const re = ds.filter(function (sp) { return sp.gia < 500000; });
+const ten = ds.map(function (sp) { return sp.ten; });
+const tong = ds.reduce(function (t, sp) { return t + sp.gia; }, 0);
+console.log(re.length, ten, tong);`, exk:"js", bts:["BT16"]},
+{id:"dom-chon", ch:"dom", t:"DOM: chọn và thay đổi phần tử",
+ body:`<p>DOM (Document Object Model) là cách trình duyệt biểu diễn trang HTML thành cây đối tượng để JavaScript đọc và thay đổi.</p>
+ <ul><li><code>document.querySelector("bộ-chọn-CSS")</code>: lấy phần tử đầu tiên khớp; <code>querySelectorAll</code> lấy tất cả.</li><li><code>el.textContent</code>: đọc hoặc gán nội dung chữ.</li><li><code>el.classList.add("ten-lop")</code>, <code>remove</code>, <code>toggle</code>: thêm, bớt lớp CSS.</li><li><code>document.createElement("li")</code> tạo phần tử mới, <code>cha.append(con)</code> gắn vào trang.</li></ul>`,
+ ex:String.raw`
+<h2 id="tieu-de">Sản phẩm</h2>
+<ul id="ds"></ul>
+<style>.noi-bat { color: #f05a23; }<\/style>
+<script>
+  const td = document.querySelector("#tieu-de");
+  td.textContent = "Sản phẩm bán chạy";
+  td.classList.add("noi-bat");
+  const li = document.createElement("li");
+  li.textContent = "Túi tote - 450.000 đồng";
+  document.querySelector("#ds").append(li);
+<\/script>`, exk:"html", bts:["BT17"]},
+{id:"dom-su-kien", ch:"dom", t:"DOM: xử lý sự kiện",
+ body:`<p>Sự kiện là hành động của người dùng hoặc trình duyệt: bấm chuột (<code>click</code>), nhập liệu (<code>input</code>), gửi biểu mẫu (<code>submit</code>), tải xong trang (<code>load</code>).</p>
+ <p>Gắn hàm xử lý bằng <code>el.addEventListener("click", function () { ... })</code>. Trong hàm xử lý, đọc trạng thái hiện tại, tính toán, rồi cập nhật lại DOM.</p>`,
+ ex:String.raw`
+<button id="nut">Thêm vào giỏ</button>
+<p>Số sản phẩm trong giỏ: <span id="dem">0</span></p>
+<script>
+  let soLuong = 0;
+  document.querySelector("#nut").addEventListener("click", function () {
+    soLuong = soLuong + 1;
+    document.querySelector("#dem").textContent = soLuong;
+  });
+<\/script>`, exk:"html", bts:["BT18","BT20"]},
+{id:"dom-xml", ch:"dom", t:"XML và JSON",
+ body:`<p>XML (eXtensible Markup Language) lưu và trao đổi dữ liệu bằng thẻ do người dùng tự định nghĩa, ví dụ <code>&lt;sanpham&gt;&lt;ten&gt;Ví da&lt;/ten&gt;&lt;/sanpham&gt;</code>. Đọc XML trong JavaScript bằng <code>new DOMParser().parseFromString(chuoi, "text/xml")</code>, sau đó dùng <code>getElementsByTagName</code> hoặc <code>querySelectorAll</code>.</p>
+ <p>JSON (JavaScript Object Notation) là định dạng trao đổi dữ liệu phổ biến giữa trình duyệt và máy chủ. <code>JSON.parse(chuoi)</code> chuyển chuỗi JSON thành đối tượng; <code>JSON.stringify(doiTuong)</code> làm ngược lại. Kỹ thuật AJAX dùng <code>fetch</code> để lấy dữ liệu JSON từ máy chủ mà không tải lại trang.</p>`,
+ ex:String.raw`
+const xml = "<ds><sanpham><ten>Túi tote<\/ten><\/sanpham><sanpham><ten>Ví da<\/ten><\/sanpham><\/ds>";
+const doc = new DOMParser().parseFromString(xml, "text/xml");
+console.log("Số sản phẩm XML:", doc.getElementsByTagName("sanpham").length);
+const json = '[{"ten":"Balo mini","gia":980000}]';
+const ds = JSON.parse(json);
+console.log("Tên sản phẩm JSON:", ds[0].ten);`, exk:"js", bts:["BT19"]}
+];
+
+// type: fill | html | js | dom ; point mỗi bài 0,5
+const EX = {
+BT01:{t:"Hoàn thành khung tài liệu HTML5", type:"fill",
+ prompt:"Điền vào chỗ trống để có một tài liệu HTML5 chuẩn, tiếng Việt, bảng mã UTF-8.",
+ tpl:"<!{0} html>\n<html {1}=\"vi\">\n<head>\n  <meta {2}=\"utf-8\">\n  <{3}>Cửa hàng Mẫu</title>\n</head>", ans:[["doctype"],["lang"],["charset"],["title"]]},
+BT02:{t:"Trang giới thiệu sản phẩm", type:"html",
+ prompt:"Viết trang có: đúng 1 thẻ h1 chứa chữ \"Cửa hàng Mẫu\"; ít nhất 2 đoạn văn p; ít nhất 1 cụm từ quan trọng đặt trong strong; ít nhất 1 thẻ h2.",
+ starter:String.raw`
+<h1></h1>
+<p></p>`,
+ tests:[["Có đúng 1 thẻ h1",d=>d.querySelectorAll("h1").length===1],["h1 chứa \"Cửa hàng Mẫu\"",d=>{const h=d.querySelector("h1");return !!h&&/cửa hàng mẫu/i.test(h.textContent)}],["Có ít nhất 2 đoạn văn p có nội dung",d=>[...d.querySelectorAll("p")].filter(p=>p.textContent.trim()).length>=2],["Có thẻ strong có nội dung",d=>[...d.querySelectorAll("strong")].some(s=>s.textContent.trim())],["Có ít nhất 1 thẻ h2",d=>d.querySelectorAll("h2").length>=1]]},
+BT03:{t:"Thuộc tính của liên kết và hình ảnh", type:"fill",
+ prompt:"Điền thuộc tính còn thiếu: liên kết tới website UEL mở ở thẻ mới; ảnh có văn bản thay thế.",
+ tpl:"<a {0}=\"https://uel.edu.vn\" {1}=\"_blank\">Website UEL</a>\n<img {2}=\"tui.jpg\" {3}=\"Túi xách da bò màu nâu\">", ans:[["href"],["target"],["src"],["alt"]]},
+BT04:{t:"Thanh điều hướng và ảnh sản phẩm", type:"html",
+ prompt:"Tạo thẻ nav chứa ít nhất 3 liên kết (Trang chủ, Sản phẩm, Liên hệ), mỗi liên kết có href không rỗng. Thêm ít nhất 1 ảnh sản phẩm; mọi ảnh phải có alt không rỗng.",
+ starter:String.raw`
+<nav>
+  <a href="/">Trang chủ</a>
+</nav>
+<img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='160'%3E%3Crect width='240' height='160' fill='%23c9a27a'/%3E%3Ctext x='120' y='86' font-size='20' text-anchor='middle' fill='%23ffffff' font-family='Arial'%3ETui xach%3C/text%3E%3C/svg%3E" alt="">`,
+ tests:[["Có thẻ nav",d=>!!d.querySelector("nav")],["nav có ít nhất 3 liên kết",d=>d.querySelectorAll("nav a").length>=3],["Mọi liên kết trong nav có href không rỗng",d=>{const a=[...d.querySelectorAll("nav a")];return a.length>0&&a.every(x=>(x.getAttribute("href")||"").trim())}],["Có ít nhất 1 ảnh",d=>d.querySelectorAll("img").length>=1],["Mọi ảnh có alt không rỗng",d=>{const i=[...d.querySelectorAll("img")];return i.length>0&&i.every(x=>(x.getAttribute("alt")||"").trim())}]]},
+BT05:{t:"Bảng giá sản phẩm", type:"html",
+ prompt:"Tạo bảng giá có caption; hàng tiêu đề dùng th gồm ít nhất 2 cột (Sản phẩm, Giá); ít nhất 3 hàng dữ liệu dùng td.",
+ starter:String.raw`
+<table border="1">
+  <caption></caption>
+</table>`,
+ tests:[["Có bảng table",d=>!!d.querySelector("table")],["Có caption có nội dung",d=>{const c=d.querySelector("table caption");return !!c&&!!c.textContent.trim()}],["Có ít nhất 2 ô th",d=>d.querySelectorAll("table th").length>=2],["Có ít nhất 3 hàng chứa td",d=>[...d.querySelectorAll("table tr")].filter(r=>r.querySelector("td")).length>=3]]},
+BT06:{t:"Nhãn và kiểu ô nhập", type:"fill",
+ prompt:"Điền vào chỗ trống để nhãn gắn với ô nhập email, ô nhập kiểm tra định dạng email và bắt buộc nhập.",
+ tpl:"<label {0}=\"email\">Email</label>\n<input id=\"email\" type=\"{1}\" {2}>\n<button type=\"{3}\">Đăng ký</button>", ans:[["for"],["email"],["required"],["submit"]]},
+BT07:{t:"Biểu mẫu đăng ký nhận ưu đãi", type:"html",
+ prompt:"Tạo form gồm: ô họ tên (type text, required), ô email (type email, required), ô số điện thoại (type tel). Mỗi ô có label với for trùng id. Có nút type submit.",
+ starter:String.raw`
+<form>
+</form>`,
+ tests:[["Có thẻ form",d=>!!d.querySelector("form")],["Có ô text bắt buộc",d=>!!d.querySelector('form input[type="text"][required]')],["Có ô email bắt buộc",d=>!!d.querySelector('form input[type="email"][required]')],["Có ô tel",d=>!!d.querySelector('form input[type="tel"]')],["Mọi ô nhập có label for khớp id",d=>{const i=[...d.querySelectorAll("form input:not([type=submit]):not([type=hidden])")];return i.length>=3&&i.every(x=>x.id&&d.querySelector('label[for="'+x.id+'"]'))}],["Có nút submit",d=>!!d.querySelector('form button[type="submit"], form input[type="submit"]')]]},
+BT08:{t:"Bộ chọn CSS", type:"fill",
+ prompt:"Điền bộ chọn: dòng 1 chọn mọi đoạn văn; dòng 2 chọn các phần tử có class=\"gia\"; dòng 3 chọn phần tử có id=\"menu\"; dòng 4 chọn liên kết nằm trong nav.",
+ tpl:"{0} { color: #333333; }\n{1}gia { color: #f05a23; }\n{2}menu { background: #144e8c; }\nnav {3} { color: white; }", ans:[["p"],["."],["#"],["a"]]},
+BT09:{t:"Định dạng theo nhận diện thương hiệu", type:"html",
+ prompt:"Giữ nguyên phần HTML; viết CSS trong thẻ style sao cho: h1 có màu chữ #144e8c và căn giữa; phần tử .gia có màu chữ #f05a23 và chữ đậm; body dùng font-family có Arial.",
+ starter:String.raw`
+<style>
+  /* Viết CSS ở đây */
+<\/style>
+<h1>Cửa hàng Mẫu</h1>
+<p>Túi tote da bò</p>
+<p class="gia">450.000 đồng</p>`,
+ tests:[["h1 màu #144e8c",(d,w)=>w.getComputedStyle(d.querySelector("h1")).color==="rgb(20, 78, 140)"],["h1 căn giữa",(d,w)=>w.getComputedStyle(d.querySelector("h1")).textAlign==="center"],[".gia màu #f05a23",(d,w)=>{const g=d.querySelector(".gia");return !!g&&w.getComputedStyle(g).color==="rgb(240, 90, 35)"}],[".gia chữ đậm",(d,w)=>{const g=d.querySelector(".gia");return !!g&&+w.getComputedStyle(g).fontWeight>=700}],["body dùng Arial",(d,w)=>/arial/i.test(w.getComputedStyle(d.body).fontFamily)]]},
+BT10:{t:"Thẻ sản phẩm đúng kích thước", type:"html",
+ prompt:"Viết CSS cho .the-sp: rộng hiển thị đúng 300px (tính cả padding và border), padding 20px, viền 2px solid. Gợi ý: dùng box-sizing.",
+ starter:String.raw`
+<style>
+  .the-sp {
+  }
+<\/style>
+<div class="the-sp">Túi tote da bò<br>450.000 đồng</div>`,
+ tests:[["Rộng hiển thị đúng 300px",d=>{const e=d.querySelector(".the-sp");return !!e&&e.offsetWidth===300}],["padding 20px",(d,w)=>{const e=d.querySelector(".the-sp");return !!e&&w.getComputedStyle(e).paddingLeft==="20px"}],["Viền 2px solid",(d,w)=>{const e=d.querySelector(".the-sp"),s=e&&w.getComputedStyle(e);return !!s&&s.borderLeftWidth==="2px"&&s.borderLeftStyle==="solid"}]]},
+BT11:{t:"Thanh menu bằng Flexbox", type:"html",
+ prompt:"Viết CSS cho .menu: hiển thị flex, các liên kết dàn đều hai đầu (space-between), khoảng cách gap 12px, nền màu #144e8c.",
+ starter:String.raw`
+<style>
+  .menu {
+  }
+  .menu a { color: white; }
+<\/style>
+<nav class="menu">
+  <a href="#">Cửa hàng Mẫu</a>
+  <a href="#">Sản phẩm</a>
+  <a href="#">Giỏ hàng</a>
+</nav>`,
+ tests:[["display: flex",(d,w)=>w.getComputedStyle(d.querySelector(".menu")).display==="flex"],["justify-content: space-between",(d,w)=>w.getComputedStyle(d.querySelector(".menu")).justifyContent==="space-between"],["gap 12px",(d,w)=>{const s=w.getComputedStyle(d.querySelector(".menu"));return s.columnGap==="12px"}],["Nền #144e8c",(d,w)=>w.getComputedStyle(d.querySelector(".menu")).backgroundColor==="rgb(20, 78, 140)"]]},
+BT12:{t:"Lưới sản phẩm đáp ứng", type:"html", widths:[400,800],
+ prompt:"Viết CSS theo nguyên tắc mobile first cho .luoi: dùng display grid; màn hình nhỏ hơn 600px hiển thị 1 cột; từ 600px trở lên hiển thị 3 cột. Trang được chấm ở hai chiều rộng 400px và 800px.",
+ starter:String.raw`
+<style>
+  .luoi { display: grid; gap: 10px; }
+  .luoi div { background: #00aeef; color: white; padding: 16px; }
+<\/style>
+<div class="luoi"><div>Túi tote</div><div>Ví da</div><div>Balo mini</div></div>`,
+ tests:[["display: grid",(d,w)=>w.getComputedStyle(d.querySelector(".luoi")).display==="grid"],["Rộng 400px: 1 cột",(d,w,W)=>W!==400||w.getComputedStyle(d.querySelector(".luoi")).gridTemplateColumns.trim().split(/\s+/).length===1],["Rộng 800px: 3 cột",(d,w,W)=>W!==800||w.getComputedStyle(d.querySelector(".luoi")).gridTemplateColumns.trim().split(/\s+/).length===3]]},
+BT13:{t:"Biến và kiểu dữ liệu", type:"fill",
+ prompt:"Điền vào chỗ trống: khai báo hằng giá không gán lại được; khai báo biến số lượng thay đổi được; in kết quả ra màn hình kết quả; kiểu dữ liệu của tenSanPham.",
+ tpl:"{0} gia = 450000;\n{1} soLuong = 2;\nconst tenSanPham = \"Túi tote\";\nconsole.{2}(gia * soLuong);\n// typeof tenSanPham trả về \"{3}\"", ans:[["const"],["let"],["log"],["string"]]},
+BT14:{t:"Hàm tính phí giao hàng", type:"js",
+ prompt:"Viết hàm phiGiaoHang(tong): trả về 0 nếu tong từ 500000 trở lên; trả về 30000 nếu tong nhỏ hơn 500000; trả về -1 nếu tong âm.",
+ starter:String.raw`
+function phiGiaoHang(tong) {
+  // Viết mã ở đây
+}
+console.log(phiGiaoHang(600000));`,
+ tests:[["phiGiaoHang(600000) === 0","phiGiaoHang(600000) === 0"],["phiGiaoHang(500000) === 0","phiGiaoHang(500000) === 0"],["phiGiaoHang(320000) === 30000","phiGiaoHang(320000) === 30000"],["phiGiaoHang(-5) === -1","phiGiaoHang(-5) === -1"]]},
+BT15:{t:"Hàm tính thành tiền", type:"js",
+ prompt:"Viết hàm thanhTien(gia, soLuong, phanTramGiam) trả về gia × soLuong sau khi giảm phanTramGiam phần trăm. Ví dụ thanhTien(450000, 2, 10) = 810000. Nếu soLuong nhỏ hơn 1 thì trả về 0.",
+ starter:String.raw`
+function thanhTien(gia, soLuong, phanTramGiam) {
+  // Viết mã ở đây
+}
+console.log(thanhTien(450000, 2, 10));`,
+ tests:[["thanhTien(450000, 2, 10) === 810000","thanhTien(450000, 2, 10) === 810000"],["thanhTien(320000, 1, 0) === 320000","thanhTien(320000, 1, 0) === 320000"],["thanhTien(100000, 3, 50) === 150000","thanhTien(100000, 3, 50) === 150000"],["thanhTien(450000, 0, 10) === 0","thanhTien(450000, 0, 10) === 0"]]},
+BT16:{t:"Lọc và tính tổng danh sách sản phẩm", type:"js",
+ prompt:"Cho mảng sanPham. Viết hàm locTheoGia(ds, giaToiDa) trả về mảng sản phẩm có gia nhỏ hơn hoặc bằng giaToiDa; viết hàm tongGia(ds) trả về tổng gia của mảng; viết hàm danhSachTen(ds) trả về mảng tên.",
+ starter:String.raw`
+const sanPham = [
+  { ten: "Túi tote", gia: 450000 },
+  { ten: "Ví da", gia: 320000 },
+  { ten: "Balo mini", gia: 980000 },
+  { ten: "Dây đeo thẻ", gia: 120000 }
+];
+function locTheoGia(ds, giaToiDa) {
+}
+function tongGia(ds) {
+}
+function danhSachTen(ds) {
+}
+console.log(locTheoGia(sanPham, 400000));`,
+ tests:[["locTheoGia(sanPham, 400000) có 2 phần tử","locTheoGia(sanPham, 400000).length === 2"],["locTheoGia(sanPham, 100000) rỗng","locTheoGia(sanPham, 100000).length === 0"],["tongGia(sanPham) === 1870000","tongGia(sanPham) === 1870000"],["danhSachTen(sanPham)[2] === \"Balo mini\"","JSON.stringify(danhSachTen(sanPham)) === JSON.stringify(['Túi tote','Ví da','Balo mini','Dây đeo thẻ'])"]]},
+BT17:{t:"Chọn và thay đổi phần tử DOM", type:"fill",
+ prompt:"Điền vào chỗ trống để chọn tiêu đề có id tieu-de, đổi nội dung chữ, thêm lớp noi-bat và tạo một thẻ li mới.",
+ tpl:"const el = document.{0}(\"#tieu-de\");\nel.{1} = \"Sản phẩm bán chạy\";\nel.classList.{2}(\"noi-bat\");\nconst li = document.{3}(\"li\");", ans:[["querySelector"],["textContent","innerText"],["add"],["createElement"]]},
+BT18:{t:"Nút tăng giảm số lượng", type:"dom",
+ prompt:"Giữ nguyên phần HTML. Viết script để: bấm nút #tang thì số trong #so tăng 1; bấm nút #giam thì giảm 1 nhưng không nhỏ hơn 0.",
+ starter:String.raw`
+<button id="giam">-</button>
+<span id="so">0</span>
+<button id="tang">+</button>
+<script>
+  // Viết mã xử lý sự kiện ở đây
+<\/script>`,
+ tests:[["Bấm + ba lần: số là 3","(function(){var t=document.querySelector('#tang');t.click();t.click();t.click();return document.querySelector('#so').textContent.trim()==='3';})()"],["Bấm - một lần: số là 2","(function(){document.querySelector('#giam').click();return document.querySelector('#so').textContent.trim()==='2';})()"],["Bấm - năm lần: số không nhỏ hơn 0","(function(){var g=document.querySelector('#giam');for(var i=0;i<5;i++)g.click();return document.querySelector('#so').textContent.trim()==='0';})()"]]},
+BT19:{t:"Đọc dữ liệu XML và JSON", type:"js",
+ prompt:"Viết hàm demSanPhamXML(xml) trả về số thẻ sanpham trong chuỗi XML (dùng DOMParser); viết hàm tenTuJSON(json) nhận chuỗi JSON là mảng sản phẩm và trả về mảng tên.",
+ starter:String.raw`
+function demSanPhamXML(xml) {
+}
+function tenTuJSON(json) {
+}
+console.log(demSanPhamXML("<ds><sanpham/><sanpham/><\/ds>"));`,
+ tests:[["Đếm 2 sản phẩm","demSanPhamXML('<ds><sanpham><ten>A</ten></sanpham><sanpham><ten>B</ten></sanpham></ds>') === 2"],["Đếm 0 sản phẩm","demSanPhamXML('<ds></ds>') === 0"],["tenTuJSON trả đúng mảng tên","JSON.stringify(tenTuJSON('[{\"ten\":\"Ví da\",\"gia\":1},{\"ten\":\"Balo\",\"gia\":2}]')) === JSON.stringify(['Ví da','Balo'])"]]},
+BT20:{t:"Hiển thị danh sách và giỏ hàng", type:"dom",
+ prompt:"Từ mảng sanPham, dùng JavaScript tạo các thẻ li trong #ds, mỗi li có dạng \"Tên - Giá\". Mỗi li có một nút \"Thêm\"; bấm nút thì cộng giá sản phẩm vào #tong (chỉ hiện số, ví dụ 450000).",
+ starter:String.raw`
+<ul id="ds"></ul>
+<p>Tổng: <span id="tong">0</span></p>
+<script>
+  const sanPham = [
+    { ten: "Túi tote", gia: 450000 },
+    { ten: "Ví da", gia: 320000 },
+    { ten: "Balo mini", gia: 980000 }
+  ];
+  // Viết mã ở đây
+<\/script>`,
+ tests:[["#ds có 3 thẻ li","document.querySelectorAll('#ds li').length === 3"],["li đầu chứa \"Túi tote\"","(function(){var l=document.querySelector('#ds li');return !!l&&l.textContent.indexOf('Túi tote')>=0;})()"],["Mỗi li có nút","document.querySelectorAll('#ds li button').length === 3"],["Bấm Thêm ở sản phẩm 1 và 2: tổng 770000","(function(){var b=document.querySelectorAll('#ds li button');b[0].click();b[1].click();return document.querySelector('#tong').textContent.replace(/\\D/g,'')==='770000';})()"]]}
+};
+const ORDER = Object.keys(EX);
+const POINT = 0.5;
+// ===== TRẠNG THÁI =====
+const $ = (s, r = document) => r.querySelector(s);
+const esc = s => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const KEY = "bie5030-thuchanh-v1";
+const SALT = "UEL-BIE5030-THUCHANH-2026";
+let S = {sv:{hoTen:"", mssv:"", lop:""}, ex:{}, draft:{}};
+try { const s = JSON.parse(localStorage.getItem(KEY)); if (s && s.ex) S = Object.assign(S, s); } catch (e) {}
+function save(){ try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
+const passed = id => !!(S.ex[id] && S.ex[id].pass);
+const score = () => ORDER.filter(passed).length * POINT;
+const fmt = x => x.toLocaleString("vi-VN", {minimumFractionDigits:1, maximumFractionDigits:1});
+function updScore(){ $("#topScore").textContent = fmt(score()) + "/10 điểm · " + ORDER.filter(passed).length + "/" + ORDER.length + " bài"; renderSide(); }
+const lessonOf = id => LESSONS.find(l => l.bts.includes(id));
+
+// ===== ĐIỀU HƯỚNG =====
+function renderSide(){
+  const cur = (location.hash || "#gioi-thieu").slice(1);
+  let h = `<h4>Bắt đầu</h4><a href="#gioi-thieu" class="${cur==="gioi-thieu"?"on":""}">Hướng dẫn và thông tin</a><a href="#thu-ngay" class="${cur==="thu-ngay"?"on":""}">Trình soạn thảo Thử ngay</a>`;
+  CHAPTERS.forEach(c => { h += `<h4>${c.t}</h4>`; LESSONS.filter(l => l.ch === c.id).forEach(l => { const n = l.bts.filter(passed).length; h += `<a href="#${l.id}" class="${cur===l.id?"on":""}"><span>${l.t}</span><span class="c">${n}/${l.bts.length}</span></a>`; }); });
+  h += `<h4>Hoàn thành</h4><a href="#nop-bai" class="${cur==="nop-bai"?"on":""}">Xuất bài nộp</a><a href="#giang-vien" class="${cur==="giang-vien"?"on":""}">Giảng viên: kiểm tra bài nộp</a>`;
+  $("#side").innerHTML = h;
+}
+$("#menuBtn").onclick = () => $("#side").classList.toggle("open");
+$("#side").addEventListener("click", e => { if (e.target.closest("a")) $("#side").classList.remove("open"); });
+
+// ===== CHẠY MÃ =====
+function hiddenFrame(sandbox, width){ const f = document.createElement("iframe"); f.setAttribute("sandbox", sandbox); f.style.cssText = `position:absolute;left:-10000px;top:0;width:${width}px;height:600px;border:0`; f.setAttribute("aria-hidden","true"); f.tabIndex = -1; document.body.appendChild(f); return f; }
+function runHTMLTests(code, tests, widths){
+  widths = widths || [800];
+  return Promise.all(widths.map(W => new Promise(res => {
+    const f = hiddenFrame("allow-same-origin", W);
+    f.onload = () => { const d = f.contentDocument, w = f.contentWindow; const r = tests.map(t => { try { return !!t[1](d, w, W); } catch (e) { return false; } }); f.remove(); res(r); };
+    f.srcdoc = code;
+  }))).then(rs => tests.map((t, i) => ({n:t[0], ok:rs.every(r => r[i])})));
+}
+const CAPTURE = `<script>window.__L=[];window.__E=[];(function(){var o=console.log;console.log=function(){var a=[].slice.call(arguments).map(function(x){try{return typeof x==='object'?JSON.stringify(x):String(x)}catch(e){return String(x)}});window.__L.push(a.join(' '));try{o.apply(console,arguments)}catch(e){}};window.addEventListener('error',function(e){window.__E.push(e.message)});})();<\/script>`.replace(/<\\\//g,"</");
+function buildJS(code, kind, tests, nonce){
+  let body = kind === "js" ? "<script>\n" + code.replace(/<\/script/gi, "<\\/script") + "\n</scr" + "ipt>" : code;
+  let h = "";
+  if (tests) {
+    h = "<scr" + "ipt>window.addEventListener('load',function(){setTimeout(function(){var R=[];function T(n,f){try{R.push([n,!!f()])}catch(e){R.push([n,false,String(e&&e.message||e)])}}\n" +
+      tests.map(t => "T(" + JSON.stringify(t[0]) + ",function(){return (" + t[1] + ");});").join("\n") +
+      "\nparent.postMessage({__bie:" + JSON.stringify(nonce) + ",L:window.__L,E:window.__E,R:R},'*');},40);});</scr" + "ipt>";
+  } else {
+    h = "<scr" + "ipt>window.addEventListener('load',function(){setTimeout(function(){parent.postMessage({__bie:" + JSON.stringify(nonce) + ",L:window.__L,E:window.__E,R:[]},'*');},40);});</scr" + "ipt>";
+  }
+  return CAPTURE + body + h;
+}
+function runJS(code, kind, tests){
+  return new Promise(res => {
+    const nonce = Math.random().toString(36).slice(2) + Date.now();
+    const f = hiddenFrame("allow-scripts", 800);
+    const done = (msg) => { window.removeEventListener("message", on); clearTimeout(to); f.remove(); res(msg); };
+    const on = e => { if (e.source === f.contentWindow && e.data && e.data.__bie === nonce) done(e.data); };
+    window.addEventListener("message", on);
+    const to = setTimeout(() => done({L:[], E:["Mã chạy quá 5 giây hoặc bị lỗi cú pháp nên không trả kết quả."], R:(tests||[]).map(t => [t[0], false])}), 5000);
+    f.srcdoc = buildJS(code, kind, tests, nonce);
+  });
+}
+
+// ===== GIAO DIỆN THỬ NGAY =====
+function tryPanel(code, kind, id){
+  const box = document.createElement("div"); box.className = "tryit";
+  box.innerHTML = `<div style="display:grid;gap:8px"><textarea class="ed" id="ed-${id}" spellcheck="false" aria-label="Mã nguồn">${esc(code)}</textarea><div class="row"><button class="btn or" type="button" data-run>Chạy »</button><button class="btn gh" type="button" data-reset>Khôi phục ví dụ</button></div></div><div style="display:grid;gap:8px;align-content:start">${kind==="js"?`<p class="note">Kết quả console.log</p><pre class="out" data-out></pre>`:`<iframe class="pv" sandbox="allow-scripts" title="Kết quả" data-pv></iframe>`}</div>`;
+  const ed = box.querySelector("textarea"); tabKey(ed);
+  const run = async () => { if (kind === "js") { const r = await runJS(ed.value, "js", null); box.querySelector("[data-out]").textContent = (r.L.join("\n") || "(không có dòng nào được in)") + (r.E.length ? "\nLỗi: " + r.E.join("; ") : ""); } else box.querySelector("[data-pv]").srcdoc = ed.value; };
+  box.querySelector("[data-run]").onclick = run;
+  box.querySelector("[data-reset]").onclick = () => { ed.value = code; run(); };
+  setTimeout(run, 0);
+  return box;
+}
+function tabKey(ta){ ta.addEventListener("keydown", e => { if (e.key === "Tab" && !e.shiftKey) { e.preventDefault(); const s = ta.selectionStart, en = ta.selectionEnd; ta.value = ta.value.slice(0, s) + "  " + ta.value.slice(en); ta.selectionStart = ta.selectionEnd = s + 2; } }); }
+
+// ===== BÀI TẬP =====
+function statusBadge(id){ const x = S.ex[id]; return x && x.pass ? `<span class="badge ok">Đạt · ${fmt(POINT)} điểm</span>` : x && x.tries ? `<span class="badge bad">Chưa đạt · ${x.tries} lần thử</span>` : `<span class="badge no">Chưa làm</span>`; }
+function record(id, ok, payload){
+  const x = S.ex[id] || {tries:0}; x.tries = (x.tries || 0) + 1; x.last = new Date().toISOString(); x.lastOk = ok;
+  if (ok && !x.pass) { x.pass = true; x.at = x.last; }
+  if (ok) x.passData = payload; else if (!x.pass) x.passData = payload;
+  S.ex[id] = x; save(); updScore();
+}
+function exBlock(id){
+  const E = EX[id], box = document.createElement("section"); box.className = "bt"; box.id = "bt-" + id;
+  const typeLbl = {fill:"Điền vào chỗ trống", html:"Viết HTML/CSS", js:"Viết JavaScript", dom:"Viết JavaScript với DOM"}[E.type];
+  box.innerHTML = `<div class="bt-h"><b>${id} · ${E.t}</b><span class="row"><span class="tag">${typeLbl}</span><span data-st>${statusBadge(id)}</span></span></div><p>${esc(E.prompt)}</p><div data-body></div>`;
+  const body = box.querySelector("[data-body]"); const setSt = () => box.querySelector("[data-st]").innerHTML = statusBadge(id);
+  if (E.type === "fill") {
+    let i = 0; const saved = (S.draft[id] || []);
+    const html = esc(E.tpl).replace(/\{(\d)\}/g, (m, k) => `<input type="text" data-k="${k}" aria-label="Chỗ trống ${+k+1}" value="${esc(saved[k] || "")}" autocomplete="off" spellcheck="false">`);
+    body.innerHTML = `<div class="fill">${html}</div><div class="row"><button class="btn or" type="button" data-chk>Kiểm tra</button><span class="note" data-msg></span></div>`;
+    body.querySelector("[data-chk]").onclick = () => {
+      const ins = [...body.querySelectorAll("input")]; const vals = ins.map(x => x.value.trim());
+      let ok = true; ins.forEach((x, k) => { const good = E.ans[k].some(a => a.toLowerCase() === vals[k].toLowerCase()); x.className = good ? "ok" : "bad"; if (!good) ok = false; });
+      S.draft[id] = vals; record(id, ok, {answers: vals}); setSt();
+      body.querySelector("[data-msg]").textContent = ok ? "Chính xác. Bài đã được ghi nhận." : "Còn ô chưa đúng (ô màu đỏ). Sửa và kiểm tra lại.";
+    };
+  } else {
+    const start = U(E.starter); const code = S.draft[id] != null ? S.draft[id] : start; const isJS = E.type === "js";
+    body.innerHTML = `<div class="tryit"><div style="display:grid;gap:8px"><textarea class="ed" spellcheck="false" aria-label="Mã bài ${id}">${esc(code)}</textarea><div class="row"><button class="btn gh" type="button" data-run>Chạy thử</button><button class="btn or" type="button" data-chk>Nộp và chấm</button><button class="btn gh" type="button" data-reset>Mã ban đầu</button></div></div><div style="display:grid;gap:8px;align-content:start">${isJS?`<p class="note">Kết quả console.log</p><pre class="out" data-out></pre>`:`<iframe class="pv" sandbox="allow-scripts" title="Kết quả bài ${id}" data-pv></iframe>`}<ul class="tests" data-tests>${E.tests.map(t => `<li>${esc(t[0])}</li>`).join("")}</ul><p class="note" data-msg></p></div></div>`;
+    const ed = body.querySelector("textarea"); tabKey(ed);
+    ed.addEventListener("input", () => { S.draft[id] = ed.value; save(); });
+    const preview = async () => { if (isJS) { const r = await runJS(ed.value, "js", null); body.querySelector("[data-out]").textContent = (r.L.join("\n") || "(không có dòng nào được in)") + (r.E.length ? "\nLỗi: " + r.E.join("; ") : ""); } else body.querySelector("[data-pv]").srcdoc = ed.value; };
+    body.querySelector("[data-run]").onclick = preview;
+    body.querySelector("[data-reset]").onclick = () => { ed.value = start; S.draft[id] = start; save(); preview(); };
+    body.querySelector("[data-chk]").onclick = async () => {
+      const btn = body.querySelector("[data-chk]"); btn.disabled = true; btn.textContent = "Đang chấm...";
+      let res, extra = "";
+      if (E.type === "html") res = await runHTMLTests(ed.value, E.tests, E.widths);
+      else { const r = await runJS(ed.value, E.type, E.tests); res = E.tests.map((t, i) => ({n:t[0], ok:!!(r.R[i] && r.R[i][1])})); if (r.E.length) extra = " Lỗi khi chạy: " + r.E.join("; "); if (isJS) body.querySelector("[data-out]").textContent = (r.L.join("\n") || "(không có dòng nào được in)") + (r.E.length ? "\nLỗi: " + r.E.join("; ") : ""); }
+      body.querySelectorAll("[data-tests] li").forEach((li, i) => li.className = res[i].ok ? "ok" : "bad");
+      const ok = res.every(x => x.ok); const n = res.filter(x => x.ok).length;
+      record(id, ok, {code: ed.value, tests: n + "/" + res.length}); setSt();
+      body.querySelector("[data-msg]").textContent = (ok ? "Đạt tất cả yêu cầu. Bài đã được ghi nhận." : `Đạt ${n}/${res.length} yêu cầu.`) + extra;
+      btn.disabled = false; btn.textContent = "Nộp và chấm";
+      if (!isJS) preview();
+    };
+    setTimeout(preview, 0);
+  }
+  return box;
+}
+
+// ===== CÁC TRANG =====
+function viewHome(){
+  const d = document.createElement("div"); d.className = "page";
+  d.innerHTML = `<div class="eyebrow">Học phần Phát triển web kinh doanh · BIE5030 · Khoa Hệ thống thông tin</div>
+  <h1>Thực hành Web BIE5030</h1>
+  <p class="lead">16 bài học ngắn và 20 bài tập thực hành HTML, CSS, JavaScript, DOM theo Chương III–VI của đề cương học phần. Mỗi bài học có ví dụ chạy được ngay; mỗi bài tập được chấm tự động trên trang.</p>
+  <section class="card"><h2>Thông tin sinh viên</h2><p class="note">Nhập đúng thông tin trước khi làm bài. Thông tin này được ghi vào file bài nộp.</p>
+   <div class="form"><label>Họ và tên<input id="hoTen" value="${esc(S.sv.hoTen)}" autocomplete="name"></label><label>Mã số sinh viên<input id="mssv" value="${esc(S.sv.mssv)}" inputmode="numeric"></label><label>Lớp học phần<input id="lop" value="${esc(S.sv.lop)}"></label></div><p class="note" id="svMsg"></p></section>
+  <section class="card"><h2>Cách tính điểm</h2>
+   <div class="stats"><div class="stat"><span>Số bài tập</span><b>20</b></div><div class="stat"><span>Điểm mỗi bài đạt</span><b>0,5</b></div><div class="stat"><span>Điểm tối đa</span><b>10</b></div><div class="stat"><span>Trọng số trong học phần</span><b>20%</b></div></div>
+   <ul style="margin:0;padding-left:22px;display:grid;gap:5px"><li>Bài đạt khi đúng tất cả yêu cầu; được làm lại không giới hạn số lần.</li><li>Điểm phòng thực hành = số bài đạt × 0,5, thang điểm 10, tính vào thành phần kiểm tra thực hành (A2.1, trọng số 20%) theo đề cương.</li><li>Kết thúc, vào mục <a href="#nop-bai">Xuất bài nộp</a>, tải file .html và nộp lên LMS theo thời hạn giảng viên thông báo.</li><li>Giảng viên kiểm tra mã xác thực và đọc mã nguồn trong file nộp. Bài nộp bị chỉnh sửa hoặc có mã nguồn sao chép sẽ không được tính điểm.</li></ul></section>
+  <section class="card"><h2>Tiến độ</h2><div class="tbl"><table><thead><tr><th>Bài</th><th>Nội dung</th><th>Bài học</th><th>Trạng thái</th></tr></thead><tbody>${ORDER.map(id => `<tr><td><a href="#${lessonOf(id).id}">${id}</a></td><td>${esc(EX[id].t)}</td><td>${esc(lessonOf(id).t)}</td><td>${statusBadge(id)}</td></tr>`).join("")}</tbody></table></div></section>
+  <section class="callout">Tiến độ lưu trong trình duyệt đang dùng. Làm bài trên cùng một máy và cùng một trình duyệt; xóa dữ liệu trình duyệt hoặc dùng chế độ ẩn danh sẽ mất tiến độ. Nên xuất file bài nộp sau mỗi buổi làm để lưu dự phòng.</section>
+  <div class="row"><a class="btn or" href="#html-cau-truc">Bắt đầu Bài 1 »</a></div>`;
+  ["hoTen","mssv","lop"].forEach(k => d.querySelector("#" + k).addEventListener("input", e => { S.sv[k] = e.target.value.trim(); save(); }));
+  return d;
+}
+function viewLesson(L){
+  const d = document.createElement("div"); d.className = "page"; const i = LESSONS.indexOf(L), ch = CHAPTERS.find(c => c.id === L.ch);
+  d.innerHTML = `<div class="eyebrow">${ch.t}</div><h1>${L.t}</h1><div class="prose">${L.body}</div><section class="ex"><span class="lbl">Ví dụ</span><pre class="code">${esc(U(L.ex))}</pre><div class="row"><button class="btn" type="button" data-try>Thử ngay »</button></div><div data-panel></div></section><h2>Bài tập</h2><div data-bts style="display:grid;gap:16px"></div>
+  <div class="pager">${i>0?`<a class="btn gh" href="#${LESSONS[i-1].id}">« ${LESSONS[i-1].t}</a>`:`<span></span>`}${i<LESSONS.length-1?`<a class="btn" href="#${LESSONS[i+1].id}">${LESSONS[i+1].t} »</a>`:`<a class="btn or" href="#nop-bai">Xuất bài nộp »</a>`}</div>`;
+  d.querySelector("[data-try]").onclick = e => { const p = d.querySelector("[data-panel]"); if (!p.firstChild) p.appendChild(tryPanel(U(L.ex), L.exk, L.id)); e.target.hidden = true; };
+  L.bts.forEach(id => d.querySelector("[data-bts]").appendChild(exBlock(id)));
+  return d;
+}
+function viewTry(){
+  const d = document.createElement("div"); d.className = "page";
+  d.innerHTML = `<div class="eyebrow">Công cụ</div><h1>Trình soạn thảo Thử ngay</h1><p class="lead">Viết HTML, CSS, JavaScript và xem kết quả ngay. Mã ở đây không được chấm điểm.</p><div data-p></div>`;
+  d.querySelector("[data-p]").appendChild(tryPanel(U(String.raw`
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <style>
+    body { font-family: Arial, sans-serif; }
+    h1 { color: #144e8c; }
+  <\/style>
+</head>
+<body>
+  <h1>Xin chào</h1>
+  <button onclick="document.querySelector('h1').textContent = 'Đã bấm nút'">Bấm thử</button>
+</body>
+</html>`), "html", "free"));
+  return d;
+}
+function sha256js(msg){const K=[],H=[];let n=2,c=0;const isP=x=>{for(let i=2;i*i<=x;i++)if(x%i===0)return false;return true};const fr=x=>((x-Math.floor(x))*4294967296)|0;while(c<64){if(isP(n)){if(c<8)H[c]=fr(Math.pow(n,1/2));K[c]=fr(Math.pow(n,1/3));c++}n++}
+const b=new TextEncoder().encode(msg),l=b.length,words=[];for(let i=0;i<l;i++)words[i>>2]|=b[i]<<(24-(i%4)*8);words[l>>2]|=0x80<<(24-(l%4)*8);const nw=(((l+8)>>6)+1)*16;for(let i=0;i<nw;i++)words[i]=words[i]|0;words[nw-1]=l*8;
+const r=(x,y)=>(x>>>y)|(x<<(32-y));for(let j=0;j<nw;j+=16){const w=words.slice(j,j+16);let [a,b2,c2,d,e,f,g,h]=H;for(let i=0;i<64;i++){if(i>=16){const w15=w[i-15],w2=w[i-2];w[i]=(w[i-16]+(r(w15,7)^r(w15,18)^(w15>>>3))+w[i-7]+(r(w2,17)^r(w2,19)^(w2>>>10)))|0}
+const t1=(h+(r(e,6)^r(e,11)^r(e,25))+((e&f)^(~e&g))+K[i]+w[i])|0,t2=((r(a,2)^r(a,13)^r(a,22))+((a&b2)^(a&c2)^(b2&c2)))|0;h=g;g=f;f=e;e=(d+t1)|0;d=c2;c2=b2;b2=a;a=(t1+t2)|0}
+H[0]=(H[0]+a)|0;H[1]=(H[1]+b2)|0;H[2]=(H[2]+c2)|0;H[3]=(H[3]+d)|0;H[4]=(H[4]+e)|0;H[5]=(H[5]+f)|0;H[6]=(H[6]+g)|0;H[7]=(H[7]+h)|0}
+return H.map(x=>(x>>>0).toString(16).padStart(8,"0")).join("")}
+async function sha(text){ try { if (window.crypto && crypto.subtle) { const b = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(text)); return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, "0")).join(""); } } catch (e) {} return sha256js(text); }
+function payload(){
+  return {v:1, hocPhan:"BIE5030 Phát triển web kinh doanh", sv:Object.assign({}, S.sv), xuatLuc:new Date().toISOString(),
+    bai:ORDER.map(id => { const x = S.ex[id] || {}; return {id, ten:EX[id].t, loai:EX[id].type, dat:!!x.pass, datLuc:x.at || null, soLanThu:x.tries || 0, baiLam:x.passData || null}; })};
+}
+const slug = s => s.normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/đ/g, "d").replace(/Đ/g, "D").replace(/[^A-Za-z0-9]+/g, "-").replace(/^-|-$/g, "");
+async function buildReport(){
+  const p = payload(); const json = JSON.stringify(p); const h = (await sha(SALT + json)).slice(0, 20).toUpperCase();
+  const nDat = p.bai.filter(b => b.dat).length, diem = nDat * POINT;
+  const safe = JSON.stringify({payload:p, maXacThuc:h}).replace(/</g, "\\u003c");
+  const rows = p.bai.map(b => `<tr><td>${b.id}</td><td>${esc(b.ten)}</td><td>${b.dat ? "Đạt" : "Chưa đạt"}</td><td>${b.datLuc ? new Date(b.datLuc).toLocaleString("vi-VN") : ""}</td><td style="text-align:right">${b.soLanThu}</td><td style="text-align:right">${b.dat ? "0,5" : "0"}</td></tr>`).join("");
+  const codes = p.bai.filter(b => b.baiLam).map(b => `<h3>${b.id} · ${esc(b.ten)} (${b.dat ? "Đạt" : "Chưa đạt"})</h3><pre>${esc(b.baiLam.code != null ? b.baiLam.code : (b.baiLam.answers || []).map((a, i) => "Ô " + (i + 1) + ": " + a).join("\n"))}</pre>`).join("");
+  const html = `<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Bài nộp BIE5030 - ${esc(p.sv.mssv)} - ${esc(p.sv.hoTen)}</title><style>body{font-family:Roboto,Arial,sans-serif;color:#12263d;max-width:920px;margin:24px auto;padding:0 16px;line-height:1.5}h1{color:#144e8c;margin-bottom:4px}table{border-collapse:collapse;width:100%;font-size:14px}th,td{border:1px solid #d3deeb;padding:6px 8px;text-align:left}th{background:#144e8c;color:#fff}pre{background:#0f2238;color:#e3edf8;padding:12px;border-radius:6px;overflow-x:auto;font-size:13px;white-space:pre-wrap}.k{display:flex;flex-wrap:wrap;gap:8px 28px;margin:12px 0}.k b{color:#144e8c}.ma{font-family:Consolas,monospace;background:#e9f0f8;padding:8px 12px;border-radius:6px;display:inline-block}</style></head><body>
+<p>Trường Đại học Kinh tế - Luật · Khoa Hệ thống thông tin · Bộ môn Thương mại điện tử</p>
+<h1>Kết quả Phòng thực hành Web</h1><p>Học phần Phát triển web kinh doanh (BIE5030)</p>
+<div class="k"><span>Họ và tên: <b>${esc(p.sv.hoTen)}</b></span><span>MSSV: <b>${esc(p.sv.mssv)}</b></span><span>Lớp học phần: <b>${esc(p.sv.lop)}</b></span><span>Thời điểm xuất: <b>${new Date(p.xuatLuc).toLocaleString("vi-VN")}</b></span></div>
+<div class="k"><span>Số bài đạt: <b>${nDat}/${p.bai.length}</b></span><span>Điểm phòng thực hành: <b>${fmt(diem)}/10</b></span></div>
+<p>Mã xác thực: <span class="ma">${h}</span></p>
+<table><thead><tr><th>Bài</th><th>Nội dung</th><th>Kết quả</th><th>Thời điểm đạt</th><th>Số lần thử</th><th>Điểm</th></tr></thead><tbody>${rows}</tbody></table>
+<h2>Bài làm</h2>${codes || "<p>Chưa có bài làm.</p>"}
+<script type="application/json" id="bai-nop">${safe}</scr` + `ipt></body></html>`;
+  return {html, h, nDat, diem, p};
+}
+function viewSubmit(){
+  const d = document.createElement("div"); d.className = "page"; const n = ORDER.filter(passed).length;
+  const miss = ["hoTen","mssv","lop"].filter(k => !S.sv[k]);
+  d.innerHTML = `<div class="eyebrow">Hoàn thành</div><h1>Xuất bài nộp</h1>
+  <div class="stats"><div class="stat"><span>Số bài đạt</span><b>${n}/${ORDER.length}</b></div><div class="stat"><span>Điểm phòng thực hành</span><b>${fmt(score())}/10</b></div><div class="stat"><span>Sinh viên</span><b style="font-size:16px">${esc(S.sv.hoTen || "Chưa nhập")}</b></div><div class="stat"><span>MSSV</span><b style="font-size:16px">${esc(S.sv.mssv || "Chưa nhập")}</b></div></div>
+  ${miss.length ? `<p class="callout or">Chưa đủ thông tin sinh viên. Vào <a href="#gioi-thieu">Hướng dẫn và thông tin</a> để nhập họ tên, MSSV, lớp học phần trước khi xuất file.</p>` : ""}
+  <section class="card"><h2>Tải file bài nộp</h2><p>File .html gồm thông tin sinh viên, kết quả từng bài, mã nguồn bài làm và mã xác thực. Mở file bằng trình duyệt để xem lại; nộp nguyên file lên LMS, không chỉnh sửa nội dung.</p>
+   <div class="row"><button class="btn or" type="button" id="dl" ${miss.length ? "disabled" : ""}>Tải file bài nộp (.html)</button><span class="note" id="dlMsg"></span></div><div id="fb" hidden style="display:grid;gap:8px"><p class="note">Trình xem hiện tại không hỗ trợ tải file. Sao chép toàn bộ nội dung bên dưới, dán vào Notepad và lưu với đuôi .html.</p><textarea class="inp" id="fbText" rows="8" aria-label="Nội dung file bài nộp"></textarea><button class="btn gh" type="button" id="cp">Sao chép</button></div></section>
+  <section class="card"><h2>Danh sách bài chưa đạt</h2>${ORDER.filter(id => !passed(id)).length ? `<ul style="margin:0;padding-left:22px">${ORDER.filter(id => !passed(id)).map(id => `<li><a href="#${lessonOf(id).id}">${id} · ${esc(EX[id].t)}</a></li>`).join("")}</ul>` : "<p>Đã đạt toàn bộ 20 bài.</p>"}</section>`;
+  setTimeout(() => {
+    const b = $("#dl", d); if (!b) return;
+    b.onclick = async () => {
+      const r = await buildReport(); const name = `BIE5030_ThucHanh_${slug(S.sv.mssv)}_${slug(S.sv.hoTen)}.html`;
+      let dl = null; try { dl = await claude.use("downloads"); } catch (e) {}
+      if (dl) { try { await dl.save({filename:name, data:r.html}); $("#dlMsg", d).textContent = "Đã tải file. Mã xác thực: " + r.h; return; } catch (e) { if (e && e.code === "declined") { $("#dlMsg", d).textContent = "Đã hủy tải file."; return; } } }
+      if (typeof claude === "undefined" && browserSave(name, r.html, "text/html;charset=utf-8")) { $("#dlMsg", d).textContent = "Đã tải file. Mã xác thực: " + r.h; return; }
+      const fb = $("#fb", d); fb.hidden = false; $("#fbText", d).value = r.html; $("#dlMsg", d).textContent = "Mã xác thực: " + r.h;
+      $("#cp", d).onclick = () => { const t = $("#fbText", d); try { navigator.clipboard.writeText(t.value).then(() => $("#cp", d).textContent = "Đã sao chép", () => { t.select(); }); } catch (e) { t.select(); } };
+    };
+  });
+  return d;
+}
+function browserSave(name, data, type){ try { const u = URL.createObjectURL(new Blob([data], {type})); const a = document.createElement("a"); a.href = u; a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(u), 4000); return true; } catch (e) { return false; } }
+function viewTeacher(){
+  const d = document.createElement("div"); d.className = "page"; let rows = [];
+  d.innerHTML = `<div class="eyebrow">Dành cho giảng viên</div><h1>Kiểm tra bài nộp</h1><p class="lead">Chọn một hoặc nhiều file bài nộp (.html) tải từ LMS. Trang đọc dữ liệu trong file, tính lại mã xác thực và điểm, không gửi dữ liệu đi đâu.</p>
+  <section class="card"><label class="btn" style="justify-self:start">Chọn file bài nộp<input type="file" id="files" accept=".html,text/html" multiple hidden></label><div class="tbl" id="res"></div><div class="row"><button class="btn gh" type="button" id="csv" hidden>Tải bảng điểm (.csv)</button><span class="note" id="csvMsg"></span></div></section>
+  <p class="callout">Mã xác thực giúp phát hiện file bị sửa sau khi xuất, không thay thế việc đọc mã nguồn. Giảng viên nên mở file để xem bài làm, đặc biệt các bài có mã giống nhau giữa sinh viên.</p>`;
+  setTimeout(() => {
+    $("#files", d).onchange = async e => {
+      rows = [];
+      for (const f of e.target.files) {
+        const t = await f.text(); let r = {file:f.name, ok:false, ten:"", mssv:"", lop:"", dat:0, diem:0, ma:"", note:""};
+        try { const doc = new DOMParser().parseFromString(t, "text/html"); const o = JSON.parse(doc.getElementById("bai-nop").textContent); const h = (await sha(SALT + JSON.stringify(o.payload))).slice(0, 20).toUpperCase();
+          const dat = o.payload.bai.filter(b => b.dat).length; Object.assign(r, {ok:h === o.maXacThuc, ten:o.payload.sv.hoTen, mssv:o.payload.sv.mssv, lop:o.payload.sv.lop, dat, diem:dat * POINT, ma:o.maXacThuc, xuat:o.payload.xuatLuc}); r.note = r.ok ? "Hợp lệ" : "Mã xác thực không khớp: file đã bị sửa"; }
+        catch (err) { r.note = "Không đọc được dữ liệu bài nộp"; }
+        rows.push(r);
+      }
+      $("#res", d).innerHTML = `<table><thead><tr><th>File</th><th>Họ tên</th><th>MSSV</th><th>Lớp</th><th class="r">Bài đạt</th><th class="r">Điểm</th><th>Kiểm tra</th></tr></thead><tbody>${rows.map(r => `<tr><td>${esc(r.file)}</td><td>${esc(r.ten)}</td><td>${esc(r.mssv)}</td><td>${esc(r.lop)}</td><td class="r">${r.dat}/20</td><td class="r">${fmt(r.diem)}</td><td><span class="badge ${r.ok ? "ok" : "bad"}">${esc(r.note)}</span></td></tr>`).join("")}</tbody></table>`;
+      $("#csv", d).hidden = !rows.length;
+    };
+    $("#csv", d).onclick = async () => {
+      const q = v => '"' + String(v == null ? "" : v).replace(/"/g, '""') + '"';
+      const csv = "﻿" + ["File,Họ tên,MSSV,Lớp,Số bài đạt,Điểm,Kiểm tra,Mã xác thực,Thời điểm xuất"].concat(rows.map(r => [r.file, r.ten, r.mssv, r.lop, r.dat, String(r.diem).replace(".", ","), r.note, r.ma, r.xuat || ""].map(q).join(","))).join("\r\n");
+      let dl = null; try { dl = await claude.use("downloads"); } catch (e) {}
+      if (!dl) { $("#csvMsg", d).textContent = browserSave("BIE5030_BangDiem_PhongThucHanh.csv", csv, "text/csv;charset=utf-8") ? "Đã tải bảng điểm." : "Trình xem hiện tại không hỗ trợ tải file."; return; }
+      try { await dl.save({filename:"BIE5030_BangDiem_PhongThucHanh.csv", data:csv}); $("#csvMsg", d).textContent = "Đã tải bảng điểm."; } catch (e) { $("#csvMsg", d).textContent = e && e.code === "declined" ? "Đã hủy tải file." : "Không tải được file."; }
+    };
+  });
+  return d;
+}
+
+function route(){
+  const id = (location.hash || "#gioi-thieu").slice(1);
+  const isBG = id === "bai-giang"; document.body.classList.toggle("bg", isBG);
+  $("#bgWrap").hidden = !isBG; $("#thWrap").hidden = isBG;
+  $("#tabBG").classList.toggle("on", isBG); $("#tabTH").classList.toggle("on", !isBG);
+  if (isBG) { const f = $("#bgFrame"); if (!f.getAttribute("src")) f.setAttribute("src", "bai-giang.html"); window.scrollTo(0, 0); return; } const pg = $("#page"); pg.replaceWith(Object.assign(document.createElement("div"), {id:"page"}));
+  const L = LESSONS.find(l => l.id === id);
+  const v = L ? viewLesson(L) : id === "thu-ngay" ? viewTry() : id === "nop-bai" ? viewSubmit() : id === "giang-vien" ? viewTeacher() : viewHome();
+  v.id = "page"; $("#page").replaceWith(v); renderSide(); window.scrollTo(0, 0);
+}
+window.addEventListener("hashchange", route);
+updScore(); route();
+</script>
+
+</html>
